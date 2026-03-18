@@ -153,7 +153,7 @@ function renderVideos() {
 function renderVideosIcon() {
   const vids = state.data.videos;
   dom.videosContent.innerHTML = `<div class="cards-grid">${vids.map(v => `
-    <div class="card" data-video-id="${v.id}">
+    <div class="card card-video" data-video-id="${v.id}">
       <div class="card-thumb">
         ${v.thumbnail ? `<img src="${v.thumbnail}" alt="${v.title}" loading="lazy">` : thumbPlaceholder()}
       </div>
@@ -189,14 +189,12 @@ function renderGames() {
 function renderGamesIcon() {
   const games = state.data.games;
   dom.gamesContent.innerHTML = `<div class="cards-grid">${games.map(g => `
-    <div class="card" data-game-id="${g.id}">
+    <div class="card card-game" data-game-id="${g.id}">
       <div class="card-thumb">
         ${g.thumbnail ? `<img src="${g.thumbnail}" alt="${g.title}" loading="lazy">` : thumbPlaceholder()}
       </div>
       <div class="card-info">
         <span class="card-title">${g.title}</span>
-        <span class="card-desc">${g.description}</span>
-        <span class="card-role">${g.role}</span>
       </div>
     </div>
   `).join('')}</div>`;

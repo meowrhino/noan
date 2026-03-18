@@ -9,31 +9,31 @@
     {
       "id": "crypt-necrodancer",
       "title": "Crypt of the Necrodancer Re-Composition",
-      "thumbnail": "assets/thumbnails/crypt-of-the-necrodancer.webp",
+      "thumbnail": "assets/thumbnails/crypt-of-the-necrodancer.png",
       "videoSrc": "videos/crypt-of-the-necrodancer.webm"
     },
     {
       "id": "detroit",
       "title": "Detroit Become Human Re-Composition",
-      "thumbnail": "assets/thumbnails/detroit-become-human.webp",
+      "thumbnail": "assets/thumbnails/detroit-become-human.png",
       "videoSrc": "videos/detroit-become-human.webm"
     },
     {
       "id": "empire-ants",
       "title": "Empire of the Ants Trailer Re-Composition",
-      "thumbnail": "assets/thumbnails/empire-of-the-ants.webp",
+      "thumbnail": "assets/thumbnails/empire-of-the-ants.png",
       "videoSrc": "videos/empire-of-the-ants.webm"
     },
     {
       "id": "hilda",
       "title": "Hilda Scene Re-Composition",
-      "thumbnail": "assets/thumbnails/hilda.webp",
+      "thumbnail": "assets/thumbnails/hilda.png",
       "videoSrc": "videos/hilda.webm"
     },
     {
       "id": "mario-kart",
       "title": "Mario Kart 8 Electrodome Re-Composition",
-      "thumbnail": "assets/thumbnails/mario-kart.webp",
+      "thumbnail": "assets/thumbnails/mario-kart.png",
       "videoSrc": "videos/mario-kart.webm"
     }
   ],
@@ -52,7 +52,7 @@
       "title": "Nooan's FMOD Test Project",
       "description": "A short game I made to teach myself how to use FMOD.",
       "role": "Game Dev, Music and FMOD Implementation.",
-      "thumbnail": "assets/thumbnails/fmod-test-project.webp",
+      "thumbnail": "assets/thumbnails/fmod-test-project.png",
       "itchUrl": "https://nooanmusic.itch.io/nooans-fmod-test-project",
       "itchEmbed": "https://itch.io/embed/4325888"
     },
