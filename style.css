@@ -13,7 +13,7 @@
   --text-dark:       #3d3532;
   --text-light:      #e8e0c8;
   --shadow:          #2a2220;
-  --btn-size:        80px;
+  --btn-size:        clamp(52px, 8vw, 80px);
   --font-hand:       'Patrick Hand', cursive;
   --font-body:       'Patrick Hand', system-ui, sans-serif;
 }
@@ -35,17 +35,17 @@ img { display: block; max-width: 100%; }
   align-items: center;
   justify-content: center;
   height: 100%;
-  padding: 24px;
+  padding: clamp(12px, 4vw, 40px);
 }
 
 #home-panel {
   display: flex;
   align-items: center;
-  gap: 32px;
+  gap: clamp(16px, 3vw, 32px);
   background: var(--panel-bg);
   border: 4px solid var(--shadow);
-  padding: 40px;
-  max-width: 920px;
+  padding: clamp(16px, 3vw, 40px);
+  max-width: 860px;
   width: 100%;
   box-shadow: 6px 6px 0 var(--shadow);
 }
@@ -75,8 +75,8 @@ img { display: block; max-width: 100%; }
 }
 
 .nav-btn svg {
-  width: 44px;
-  height: 44px;
+  width: clamp(28px, 4.5vw, 44px);
+  height: clamp(28px, 4.5vw, 44px);
 }
 
 /* Hover = "pushed in" (flat) */
@@ -103,7 +103,7 @@ img { display: block; max-width: 100%; }
 }
 
 #portrait-area {
-  width: 220px;
+  width: clamp(140px, 22vw, 220px);
   flex-shrink: 0;
   background: var(--accent-light);
   overflow: hidden;
@@ -117,7 +117,7 @@ img { display: block; max-width: 100%; }
 }
 
 #about-text {
-  padding: 28px 24px;
+  padding: clamp(14px, 2.5vw, 28px) clamp(14px, 2vw, 24px);
   display: flex;
   flex-direction: column;
   gap: 12px;
@@ -565,37 +565,15 @@ img { display: block; max-width: 100%; }
   opacity: 1;
 }
 
-/* ====== RESPONSIVE ====== */
-@media (max-width: 768px) {
-  #home-screen {
-    padding: 12px;
-  }
-
+/* ====== RESPONSIVE — MOBILE ====== */
+@media (max-width: 520px) {
   #home-panel {
     flex-direction: column;
-    padding: 20px;
-    gap: 16px;
   }
 
   #nav-buttons {
     flex-direction: row;
     justify-content: center;
-  }
-
-  .nav-btn {
-    --btn-size: 60px;
-    transform: translate(-1px, -2px);
-    box-shadow: 3px 3px 0 var(--accent-dark);
-  }
-
-  .nav-btn:hover {
-    transform: translate(0, 0);
-    box-shadow: 1px 1px 0 var(--accent-dark);
-  }
-
-  .nav-btn svg {
-    width: 32px;
-    height: 32px;
   }
 
   #about-panel {
@@ -605,7 +583,7 @@ img { display: block; max-width: 100%; }
 
   #portrait-area {
     width: 100%;
-    height: 180px;
+    height: 200px;
   }
 
   #portrait-img {
@@ -630,40 +608,8 @@ img { display: block; max-width: 100%; }
     grid-template-columns: 1fr;
   }
 
-  .card-video .card-thumb {
-    width: 100px;
-    height: 75px;
-  }
-
-  .card-game .card-thumb {
-    height: 100px;
-  }
-
   #window-player {
     width: 100%;
     height: 100%;
-  }
-}
-
-@media (max-width: 480px) {
-  .nav-btn {
-    --btn-size: 52px;
-  }
-
-  .nav-btn svg {
-    width: 28px;
-    height: 28px;
-  }
-
-  #home-panel {
-    padding: 14px;
-  }
-
-  #about-text {
-    padding: 16px 14px;
-  }
-
-  #about-title {
-    font-size: 1.5rem;
   }
 }
