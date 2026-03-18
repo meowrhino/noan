@@ -1,0 +1,77 @@
+{
+  "about": {
+    "name": "Noan Cittadino",
+    "title": "Audio / Game Audio",
+    "bio": "Composer, sound designer and FMOD enthusiast based in Barcelona. I make music for games, re-compose soundtracks for fun, and spend way too much time tweaking reverb tails. Currently looking for cool projects to fill with sound.",
+    "portrait": "assets/portrait.png"
+  },
+  "videos": [
+    {
+      "id": "crypt-necrodancer",
+      "title": "Crypt of the Necrodancer Re-Composition",
+      "thumbnail": "assets/thumbnails/crypt-of-the-necrodancer.webp",
+      "videoSrc": "videos/crypt-of-the-necrodancer.webm"
+    },
+    {
+      "id": "detroit",
+      "title": "Detroit Become Human Re-Composition",
+      "thumbnail": "assets/thumbnails/detroit-become-human.webp",
+      "videoSrc": "videos/detroit-become-human.webm"
+    },
+    {
+      "id": "empire-ants",
+      "title": "Empire of the Ants Trailer Re-Composition",
+      "thumbnail": "assets/thumbnails/empire-of-the-ants.webp",
+      "videoSrc": "videos/empire-of-the-ants.webm"
+    },
+    {
+      "id": "hilda",
+      "title": "Hilda Scene Re-Composition",
+      "thumbnail": "assets/thumbnails/hilda.webp",
+      "videoSrc": "videos/hilda.webm"
+    },
+    {
+      "id": "mario-kart",
+      "title": "Mario Kart 8 Electrodome Re-Composition",
+      "thumbnail": "assets/thumbnails/mario-kart.webp",
+      "videoSrc": "videos/mario-kart.webm"
+    }
+  ],
+  "games": [
+    {
+      "id": "strange-realm",
+      "title": "Strange Realm",
+      "description": "Made for Brackeys Game Jam 2026.1 by a team of 4 people in 6 days.",
+      "role": "Audio department: Music, SFX and FMOD Implementation.",
+      "thumbnail": "assets/thumbnails/strange-realm.webp",
+      "itchUrl": "https://code-gremlins.itch.io/strange-realm",
+      "itchEmbed": "https://itch.io/embed/4313129"
+    },
+    {
+      "id": "fmod-test",
+      "title": "Nooan's FMOD Test Project",
+      "description": "A short game I made to teach myself how to use FMOD.",
+      "role": "Game Dev, Music and FMOD Implementation.",
+      "thumbnail": "assets/thumbnails/fmod-test-project.webp",
+      "itchUrl": "https://nooanmusic.itch.io/nooans-fmod-test-project",
+      "itchEmbed": "https://itch.io/embed/4325888"
+    },
+    {
+      "id": "ups",
+      "title": "UPS (Ultimate Parcel Serpent)",
+      "description": "A snake-inspired parcel delivery game.",
+      "role": "FMOD Implementation (music and audio not mine!).",
+      "thumbnail": null,
+      "itchUrl": "https://nooanmusic.itch.io/",
+      "itchEmbed": null
+    }
+  ],
+  "social": [
+    { "id": "instagram",  "label": "Instagram",  "url": "https://www.instagram.com/nooanishere/",                "icon": "instagram",  "mapX": 28, "mapY": 55 },
+    { "id": "linkedin",   "label": "LinkedIn",   "url": "https://www.linkedin.com/in/noan-cittadino-290587263/", "icon": "linkedin",   "mapX": 68, "mapY": 22 },
+    { "id": "itch",       "label": "Itch.io",    "url": "https://nooanmusic.itch.io/",                          "icon": "itch",       "mapX": 52, "mapY": 72 },
+    { "id": "soundcloud", "label": "SoundCloud",  "url": "https://soundcloud.com/noan-cittadino-110819025",      "icon": "soundcloud", "mapX": 76, "mapY": 38 },
+    { "id": "discord",    "label": "Discord",    "url": "https://discordapp.com/users/279749448790310913",       "icon": "discord",    "mapX": 22, "mapY": 28 },
+    { "id": "email",      "label": "Email",      "url": "mailto:nooanmusic@gmail.com",                          "icon": "email",      "mapX": 48, "mapY": 44 }
+  ]
+}
