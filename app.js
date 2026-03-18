@@ -12,7 +12,7 @@ const state = {
 
 /* ====== ASSET PATHS (derived from id) ====== */
 function thumbPath(id) { return `assets/thumbnails/${id}.png`; }
-function videoPath(id) { return `videos/${id}.webm`; }
+function videoPath(id) { return `assets/videos/${id}.webm`; }
 
 /* ====== DOM REFS ====== */
 const dom = {};
