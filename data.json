@@ -21,33 +21,23 @@
   "videos": [
     {
       "id": "crypt-necrodancer",
-      "title": "Crypt of the Necrodancer Re-Composition",
-      "thumbnail": "assets/thumbnails/crypt-of-the-necrodancer.png",
-      "videoSrc": "videos/crypt-of-the-necrodancer.webm"
+      "title": "Crypt of the Necrodancer Re-Composition"
     },
     {
       "id": "detroit",
-      "title": "Detroit Become Human Re-Composition",
-      "thumbnail": "assets/thumbnails/detroit-become-human.png",
-      "videoSrc": "videos/detroit-become-human.webm"
+      "title": "Detroit Become Human Re-Composition"
     },
     {
       "id": "empire-ants",
-      "title": "Empire of the Ants Trailer Re-Composition",
-      "thumbnail": "assets/thumbnails/empire-of-the-ants.png",
-      "videoSrc": "videos/empire-of-the-ants.webm"
+      "title": "Empire of the Ants Trailer Re-Composition"
     },
     {
       "id": "hilda",
-      "title": "Hilda Scene Re-Composition",
-      "thumbnail": "assets/thumbnails/hilda.png",
-      "videoSrc": "videos/hilda.webm"
+      "title": "Hilda Scene Re-Composition"
     },
     {
       "id": "mario-kart",
-      "title": "Mario Kart 8 Electrodome Re-Composition",
-      "thumbnail": "assets/thumbnails/mario-kart.png",
-      "videoSrc": "videos/mario-kart.webm"
+      "title": "Mario Kart 8 Electrodome Re-Composition"
     }
   ],
   "games": [
@@ -56,7 +46,6 @@
       "title": "Strange Realm",
       "description": "Made for Brackeys Game Jam 2026.1 by a team of 4 people in 6 days.",
       "role": "Audio department: Music, SFX and FMOD Implementation.",
-      "thumbnail": "assets/thumbnails/strange-realm.webp",
       "itchUrl": "https://code-gremlins.itch.io/strange-realm",
       "itchEmbed": "https://itch.io/embed/4313129"
     },
@@ -65,7 +54,6 @@
       "title": "Nooan's FMOD Test Project",
       "description": "A short game I made to teach myself how to use FMOD.",
       "role": "Game Dev, Music and FMOD Implementation.",
-      "thumbnail": "assets/thumbnails/fmod-test-project.png",
       "itchUrl": "https://nooanmusic.itch.io/nooans-fmod-test-project",
       "itchEmbed": "https://itch.io/embed/4325888"
     },
@@ -74,7 +62,6 @@
       "title": "UPS (Ultimate Parcel Serpent)",
       "description": "A snake-inspired parcel delivery game.",
       "role": "FMOD Implementation (music and audio not mine!).",
-      "thumbnail": null,
       "itchUrl": "https://exorion.itch.io/ultimate-parcel-serpent",
       "itchEmbed": null
     }

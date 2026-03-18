@@ -10,6 +10,10 @@ const state = {
   hasHover: window.matchMedia('(hover: hover)').matches,
 };
 
+/* ====== ASSET PATHS (derived from id) ====== */
+function thumbPath(id) { return `assets/thumbnails/${id}.webp`; }
+function videoPath(id) { return `videos/${id}.webm`; }
+
 /* ====== DOM REFS ====== */
 const dom = {};
 
@@ -142,7 +146,7 @@ function openPlayer(videoId) {
   vid.controls = true;
   vid.autoplay = true;
   const src = document.createElement('source');
-  src.src = video.videoSrc;
+  src.src = videoPath(video.id);
   src.type = 'video/webm';
   vid.appendChild(src);
   dom.playerContent.appendChild(vid);
@@ -180,7 +184,7 @@ function renderVideosIcon() {
   dom.videosContent.innerHTML = `<div class="cards-grid">${vids.map(v => `
     <div class="card card-video" data-video-id="${v.id}">
       <div class="card-thumb">
-        ${v.thumbnail ? `<img src="${v.thumbnail}" alt="${v.title}" loading="lazy">` : PLACEHOLDER}
+        <img src="${thumbPath(v.id)}" alt="${v.title}" loading="lazy" onerror="this.style.display='none'">
       </div>
       <div class="card-info">
         <span class="card-title">${v.title}</span>
@@ -194,7 +198,7 @@ function renderVideosList() {
   dom.videosContent.innerHTML = `<div class="cards-list">${vids.map(v => `
     <div class="list-item" data-video-id="${v.id}">
       <div class="list-thumb">
-        ${v.thumbnail ? `<img src="${v.thumbnail}" alt="${v.title}" loading="lazy">` : PLACEHOLDER_SM}
+        <img src="${thumbPath(v.id)}" alt="${v.title}" loading="lazy" onerror="this.style.display='none'">
       </div>
       <div class="list-info">
         <span class="list-title">${v.title}</span>
@@ -214,7 +218,7 @@ function renderGamesIcon() {
   dom.gamesContent.innerHTML = `<div class="cards-grid">${games.map(g => `
     <div class="card card-game" data-game-id="${g.id}">
       <div class="card-thumb">
-        ${g.thumbnail ? `<img src="${g.thumbnail}" alt="${g.title}" loading="lazy">` : PLACEHOLDER}
+        <img src="${thumbPath(g.id)}" alt="${g.title}" loading="lazy" onerror="this.style.display='none'">
       </div>
       <div class="card-info">
         <span class="card-title">${g.title}</span>
@@ -228,7 +232,7 @@ function renderGamesList() {
   dom.gamesContent.innerHTML = `<div class="cards-list">${games.map(g => `
     <div class="list-item" data-game-id="${g.id}">
       <div class="list-thumb">
-        ${g.thumbnail ? `<img src="${g.thumbnail}" alt="${g.title}" loading="lazy">` : PLACEHOLDER_SM}
+        <img src="${thumbPath(g.id)}" alt="${g.title}" loading="lazy" onerror="this.style.display='none'">
       </div>
       <div class="list-info">
         <span class="list-title">${g.title}</span>
