@@ -12,8 +12,7 @@
   --map-sea:         #e8e0c8;
   --text-dark:       #3d3532;
   --text-light:      #e8e0c8;
-  --window-frame:    #3d3532;
-  --border:          3px solid var(--panel-bg);
+  --shadow:          #2a2220;
   --btn-size:        80px;
   --font-hand:       'Patrick Hand', cursive;
   --font-body:       'Patrick Hand', system-ui, sans-serif;
@@ -44,11 +43,11 @@ img { display: block; max-width: 100%; }
   align-items: center;
   gap: 32px;
   background: var(--panel-bg);
-  border: 4px solid #2a2220;
+  border: 4px solid var(--shadow);
   padding: 40px;
   max-width: 920px;
   width: 100%;
-  box-shadow: 6px 6px 0 #2a2220;
+  box-shadow: 6px 6px 0 var(--shadow);
 }
 
 /* ====== NAV BUTTONS ====== */
@@ -59,6 +58,7 @@ img { display: block; max-width: 100%; }
   flex-shrink: 0;
 }
 
+/* Default state = "popped out" (elevated) */
 .nav-btn {
   width: var(--btn-size);
   height: var(--btn-size);
@@ -70,7 +70,8 @@ img { display: block; max-width: 100%; }
   align-items: center;
   justify-content: center;
   transition: transform 0.1s, box-shadow 0.1s, background 0.1s;
-  box-shadow: 3px 3px 0 var(--accent-dark);
+  transform: translate(-2px, -3px);
+  box-shadow: 5px 5px 0 var(--accent-dark);
 }
 
 .nav-btn svg {
@@ -78,9 +79,10 @@ img { display: block; max-width: 100%; }
   height: 44px;
 }
 
+/* Hover = "pushed in" (flat) */
 .nav-btn:hover {
-  transform: translate(-1px, -2px);
-  box-shadow: 5px 5px 0 var(--accent-dark);
+  transform: translate(0, 0);
+  box-shadow: 2px 2px 0 var(--accent-dark);
   background: var(--accent-pale);
 }
 
@@ -94,7 +96,7 @@ img { display: block; max-width: 100%; }
   display: flex;
   gap: 0;
   background: var(--accent);
-  border: 3px solid #2a2220;
+  border: 3px solid var(--shadow);
   overflow: hidden;
   flex: 1;
   min-height: 340px;
@@ -158,12 +160,12 @@ img { display: block; max-width: 100%; }
   transform: translate(-50%, -50%) scale(0.95);
   width: 640px;
   height: 480px;
-  background: var(--window-frame);
-  border: 4px solid #2a2220;
+  background: var(--panel-bg);
+  border: 4px solid var(--shadow);
   z-index: 100;
   display: flex;
   flex-direction: column;
-  box-shadow: 6px 6px 0 #2a2220;
+  box-shadow: 6px 6px 0 var(--shadow);
   opacity: 0;
   transition: opacity 0.15s, transform 0.15s;
   overflow: hidden;
@@ -176,15 +178,16 @@ img { display: block; max-width: 100%; }
   transform: translate(-50%, -50%) scale(1);
 }
 
+/* Titlebar: accent bar with title on left, controls on right */
 .window-titlebar {
   display: flex;
   align-items: center;
   justify-content: space-between;
   background: var(--accent);
-  padding: 6px 10px;
+  padding: 0 0 0 12px;
   min-height: 36px;
   flex-shrink: 0;
-  border-bottom: 3px solid #2a2220;
+  border-bottom: 3px solid var(--shadow);
 }
 
 .window-title {
@@ -199,39 +202,44 @@ img { display: block; max-width: 100%; }
 
 .titlebar-controls {
   display: flex;
-  align-items: center;
-  gap: 6px;
+  align-items: stretch;
   flex-shrink: 0;
+  height: 100%;
 }
 
+/* Close button: square at the end of titlebar, like reference */
 .close-btn {
-  width: 26px;
-  height: 26px;
-  font-size: 1.3rem;
+  width: 36px;
+  height: 36px;
+  font-size: 1.4rem;
   font-weight: 900;
   color: var(--text-dark);
   display: flex;
   align-items: center;
   justify-content: center;
-  border: 2px solid var(--accent-dark);
+  border-left: 3px solid var(--shadow);
   background: var(--accent-light);
-  transition: background 0.1s;
+  transition: background 0.08s;
 }
 
 .close-btn:hover {
   background: var(--accent-pale);
 }
 
+.close-btn:active {
+  background: var(--accent-dark);
+}
+
 /* ====== VISTA TOGGLE BUTTON ====== */
 .vista-btn {
-  width: 26px;
-  height: 26px;
+  width: 36px;
+  height: 36px;
   display: flex;
   align-items: center;
   justify-content: center;
-  border: 2px solid var(--accent-dark);
+  border-left: 3px solid var(--shadow);
   background: var(--accent-light);
-  transition: background 0.1s;
+  transition: background 0.08s;
   position: relative;
 }
 
@@ -251,14 +259,14 @@ img { display: block; max-width: 100%; }
 /* Grid icon: 2x2 squares */
 .icon-grid {
   flex-wrap: wrap;
-  gap: 2px;
-  width: 12px;
-  height: 12px;
+  gap: 3px;
+  width: 15px;
+  height: 15px;
 }
 
 .icon-grid span {
-  width: 5px;
-  height: 5px;
+  width: 6px;
+  height: 6px;
   background: var(--text-dark);
 }
 
@@ -266,13 +274,13 @@ img { display: block; max-width: 100%; }
 .icon-lista {
   flex-direction: column;
   justify-content: space-between;
-  width: 12px;
-  height: 10px;
+  width: 15px;
+  height: 13px;
 }
 
 .icon-lista span {
   width: 100%;
-  height: 2px;
+  height: 3px;
   background: var(--text-dark);
 }
 
@@ -286,22 +294,22 @@ img { display: block; max-width: 100%; }
 
 /* Custom scrollbar */
 .window-content::-webkit-scrollbar {
-  width: 16px;
+  width: 18px;
 }
 
 .window-content::-webkit-scrollbar-track {
   background: var(--accent-light);
-  border-left: 3px solid #2a2220;
+  border-left: 3px solid var(--shadow);
 }
 
 .window-content::-webkit-scrollbar-thumb {
   background: var(--accent-dark);
-  border: 2px solid var(--accent-light);
+  border: 3px solid var(--accent-light);
 }
 
 .window-content {
   scrollbar-color: var(--accent-dark) var(--accent-light);
-  scrollbar-width: thin;
+  scrollbar-width: auto;
 }
 
 /* ====== VIDEO / GAME CARDS — ICON VIEW ====== */
@@ -318,21 +326,21 @@ img { display: block; max-width: 100%; }
   background: var(--accent);
   cursor: pointer;
   transition: transform 0.08s, box-shadow 0.08s;
-  border: 3px solid #2a2220;
-  box-shadow: 3px 3px 0 #2a2220;
+  border: 3px solid var(--shadow);
+  box-shadow: 3px 3px 0 var(--shadow);
 }
 
 .card:hover {
   transform: translate(-1px, -2px);
-  box-shadow: 5px 5px 0 #2a2220;
+  box-shadow: 5px 5px 0 var(--shadow);
 }
 
 .card:active {
   transform: translate(2px, 2px);
-  box-shadow: 0 0 0 #2a2220;
+  box-shadow: 0 0 0 var(--shadow);
 }
 
-/* Video cards: horizontal (thumb left, info right) */
+/* Video cards: horizontal */
 .card-video {
   flex-direction: row;
 }
@@ -346,10 +354,10 @@ img { display: block; max-width: 100%; }
   align-items: center;
   justify-content: center;
   overflow: hidden;
-  border-right: 3px solid #2a2220;
+  border-right: 3px solid var(--shadow);
 }
 
-/* Game cards: vertical (thumb top, info bottom) */
+/* Game cards: vertical */
 .card-game {
   flex-direction: column;
 }
@@ -362,7 +370,7 @@ img { display: block; max-width: 100%; }
   align-items: center;
   justify-content: center;
   overflow: hidden;
-  border-bottom: 3px solid #2a2220;
+  border-bottom: 3px solid var(--shadow);
 }
 
 .card-thumb img {
@@ -426,7 +434,7 @@ img { display: block; max-width: 100%; }
   padding: 8px 10px;
   cursor: pointer;
   transition: background 0.08s;
-  border-bottom: 2px solid rgba(255,255,255,0.06);
+  border-bottom: 2px solid rgba(255,255,255,0.08);
 }
 
 .list-item:hover {
@@ -442,7 +450,7 @@ img { display: block; max-width: 100%; }
   display: flex;
   align-items: center;
   justify-content: center;
-  border: 2px solid #2a2220;
+  border: 2px solid var(--shadow);
 }
 
 .list-thumb img {
@@ -484,7 +492,7 @@ img { display: block; max-width: 100%; }
 #player-content video {
   width: 100%;
   display: block;
-  aspect-ratio: 16/9;
+  max-height: calc(500px - 42px);
 }
 
 /* ====== FANTASY MAP ====== */
@@ -576,6 +584,13 @@ img { display: block; max-width: 100%; }
 
   .nav-btn {
     --btn-size: 60px;
+    transform: translate(-1px, -2px);
+    box-shadow: 3px 3px 0 var(--accent-dark);
+  }
+
+  .nav-btn:hover {
+    transform: translate(0, 0);
+    box-shadow: 1px 1px 0 var(--accent-dark);
   }
 
   .nav-btn svg {
@@ -615,9 +630,13 @@ img { display: block; max-width: 100%; }
     grid-template-columns: 1fr;
   }
 
-  .card-thumb {
+  .card-video .card-thumb {
     width: 100px;
     height: 75px;
+  }
+
+  .card-game .card-thumb {
+    height: 100px;
   }
 
   #window-player {

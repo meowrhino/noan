@@ -6,6 +6,7 @@ const state = {
   videoView: 'icon',
   gameView: 'icon',
   audioCtx: null,
+  mapRendered: false,
   hasHover: window.matchMedia('(hover: hover)').matches,
 };
 
@@ -40,6 +41,8 @@ function cacheDom() {
 document.addEventListener('DOMContentLoaded', async () => {
   cacheDom();
   await loadData();
+  if (!state.data) return;
+  applyTheme();
   renderHome();
   bindEvents();
   updateVistaIcons();
@@ -49,16 +52,34 @@ document.addEventListener('DOMContentLoaded', async () => {
 async function loadData() {
   try {
     const res = await fetch('data.json');
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
     state.data = await res.json();
   } catch (e) {
     console.error('Failed to load data.json', e);
   }
 }
 
+/* ====== THEME FROM DATA ====== */
+function applyTheme() {
+  const t = state.data.theme;
+  if (!t) return;
+  const root = document.documentElement.style;
+  if (t.bg) root.setProperty('--bg', t.bg);
+  if (t.panelBg) root.setProperty('--panel-bg', t.panelBg);
+  if (t.accent) root.setProperty('--accent', t.accent);
+  if (t.accentLight) root.setProperty('--accent-light', t.accentLight);
+  if (t.accentDark) root.setProperty('--accent-dark', t.accentDark);
+  if (t.accentPale) root.setProperty('--accent-pale', t.accentPale);
+  if (t.mapLand) root.setProperty('--map-land', t.mapLand);
+  if (t.mapSea) root.setProperty('--map-sea', t.mapSea);
+  if (t.textDark) root.setProperty('--text-dark', t.textDark);
+  if (t.textLight) root.setProperty('--text-light', t.textLight);
+  if (t.shadow) root.setProperty('--shadow', t.shadow);
+}
+
 /* ====== HOME RENDERING ====== */
 function renderHome() {
   const d = state.data;
-  if (!d) return;
   dom.portraitImg.src = d.about.portrait;
   dom.portraitImg.alt = d.about.name;
   dom.aboutName.textContent = d.about.name + ' — ' + d.about.title;
@@ -66,36 +87,31 @@ function renderHome() {
 }
 
 /* ====== WINDOW SYSTEM ====== */
+const ANIM_MS = 150;
+
 function openWindow(id) {
   const win = document.getElementById(id);
   if (!win) return;
 
-  // Close any existing content window first
   if (state.activeWindow && state.activeWindow !== id) {
     closeWindow(false);
   }
 
   dom.overlay.hidden = false;
   win.hidden = false;
-
-  // Trigger reflow then add open class for animation
   void win.offsetHeight;
   win.classList.add('open');
 
   state.activeWindow = id;
   playSound('open');
 
-  // Render content on first open
   if (id === 'window-videos') renderVideos();
   else if (id === 'window-games') renderGames();
-  else if (id === 'window-map') renderMap();
+  else if (id === 'window-map' && !state.mapRendered) { renderMap(); state.mapRendered = true; }
 }
 
 function closeWindow(withSound = true) {
-  if (state.playerWindow) {
-    closePlayer(withSound);
-    return;
-  }
+  if (state.playerWindow) { closePlayer(withSound); return; }
 
   const id = state.activeWindow;
   if (!id) return;
@@ -109,7 +125,7 @@ function closeWindow(withSound = true) {
   setTimeout(() => {
     win.hidden = true;
     dom.overlay.hidden = true;
-  }, 200);
+  }, ANIM_MS);
 
   state.activeWindow = null;
 }
@@ -119,7 +135,17 @@ function openPlayer(videoId) {
   if (!video) return;
 
   dom.playerTitle.textContent = video.title;
-  dom.playerContent.innerHTML = `<video controls autoplay><source src="${video.videoSrc}" type="video/webm">Your browser does not support video.</video>`;
+
+  // Use createElement for safety
+  dom.playerContent.innerHTML = '';
+  const vid = document.createElement('video');
+  vid.controls = true;
+  vid.autoplay = true;
+  const src = document.createElement('source');
+  src.src = video.videoSrc;
+  src.type = 'video/webm';
+  vid.appendChild(src);
+  dom.playerContent.appendChild(vid);
 
   dom.windowPlayer.hidden = false;
   void dom.windowPlayer.offsetHeight;
@@ -129,9 +155,8 @@ function openPlayer(videoId) {
 }
 
 function closePlayer(withSound = true) {
-  // Stop video
   const vid = dom.playerContent.querySelector('video');
-  if (vid) { vid.pause(); vid.src = ''; }
+  if (vid) { vid.pause(); vid.removeAttribute('src'); vid.load(); }
 
   dom.windowPlayer.classList.remove('open');
   if (withSound) playSound('close');
@@ -139,7 +164,7 @@ function closePlayer(withSound = true) {
   setTimeout(() => {
     dom.windowPlayer.hidden = true;
     dom.playerContent.innerHTML = '';
-  }, 200);
+  }, ANIM_MS);
 
   state.playerWindow = false;
 }
@@ -155,14 +180,13 @@ function renderVideosIcon() {
   dom.videosContent.innerHTML = `<div class="cards-grid">${vids.map(v => `
     <div class="card card-video" data-video-id="${v.id}">
       <div class="card-thumb">
-        ${v.thumbnail ? `<img src="${v.thumbnail}" alt="${v.title}" loading="lazy">` : thumbPlaceholder()}
+        ${v.thumbnail ? `<img src="${v.thumbnail}" alt="${v.title}" loading="lazy">` : PLACEHOLDER}
       </div>
       <div class="card-info">
         <span class="card-title">${v.title}</span>
       </div>
     </div>
   `).join('')}</div>`;
-  bindCardClicks('video');
 }
 
 function renderVideosList() {
@@ -170,14 +194,13 @@ function renderVideosList() {
   dom.videosContent.innerHTML = `<div class="cards-list">${vids.map(v => `
     <div class="list-item" data-video-id="${v.id}">
       <div class="list-thumb">
-        ${v.thumbnail ? `<img src="${v.thumbnail}" alt="${v.title}" loading="lazy">` : thumbPlaceholderSmall()}
+        ${v.thumbnail ? `<img src="${v.thumbnail}" alt="${v.title}" loading="lazy">` : PLACEHOLDER_SM}
       </div>
       <div class="list-info">
         <span class="list-title">${v.title}</span>
       </div>
     </div>
   `).join('')}</div>`;
-  bindCardClicks('video');
 }
 
 /* ====== GAMES ====== */
@@ -191,14 +214,13 @@ function renderGamesIcon() {
   dom.gamesContent.innerHTML = `<div class="cards-grid">${games.map(g => `
     <div class="card card-game" data-game-id="${g.id}">
       <div class="card-thumb">
-        ${g.thumbnail ? `<img src="${g.thumbnail}" alt="${g.title}" loading="lazy">` : thumbPlaceholder()}
+        ${g.thumbnail ? `<img src="${g.thumbnail}" alt="${g.title}" loading="lazy">` : PLACEHOLDER}
       </div>
       <div class="card-info">
         <span class="card-title">${g.title}</span>
       </div>
     </div>
   `).join('')}</div>`;
-  bindCardClicks('game');
 }
 
 function renderGamesList() {
@@ -206,7 +228,7 @@ function renderGamesList() {
   dom.gamesContent.innerHTML = `<div class="cards-list">${games.map(g => `
     <div class="list-item" data-game-id="${g.id}">
       <div class="list-thumb">
-        ${g.thumbnail ? `<img src="${g.thumbnail}" alt="${g.title}" loading="lazy">` : thumbPlaceholderSmall()}
+        ${g.thumbnail ? `<img src="${g.thumbnail}" alt="${g.title}" loading="lazy">` : PLACEHOLDER_SM}
       </div>
       <div class="list-info">
         <span class="list-title">${g.title}</span>
@@ -214,51 +236,19 @@ function renderGamesList() {
       </div>
     </div>
   `).join('')}</div>`;
-  bindCardClicks('game');
 }
 
-function bindCardClicks(type) {
-  const attr = type === 'video' ? 'data-video-id' : 'data-game-id';
-  const container = type === 'video' ? dom.videosContent : dom.gamesContent;
-  container.querySelectorAll(`[${attr}]`).forEach(el => {
-    el.addEventListener('click', () => {
-      playSound('click');
-      const id = el.getAttribute(attr);
-      if (type === 'video') {
-        openPlayer(id);
-      } else {
-        const game = state.data.games.find(g => g.id === id);
-        if (game && game.itchUrl) {
-          const isMobile = window.innerWidth < 768;
-          if (isMobile) {
-            window.location.href = game.itchUrl;
-          } else {
-            window.open(game.itchUrl, '_blank', 'noopener,noreferrer');
-          }
-        }
-      }
-    });
-  });
-}
-
-/* ====== PLACEHOLDERS ====== */
-function thumbPlaceholder() {
-  return `<svg class="card-thumb-placeholder" viewBox="0 0 40 40" fill="none" stroke="#ccc" stroke-width="2"><rect x="4" y="4" width="32" height="32" rx="4"/><path d="M16 14l8 6-8 6z" fill="#ccc"/></svg>`;
-}
-
-function thumbPlaceholderSmall() {
-  return `<svg style="width:24px;height:24px;opacity:0.2" viewBox="0 0 40 40" fill="none" stroke="#999" stroke-width="2"><rect x="4" y="4" width="32" height="32" rx="4"/><path d="M16 14l8 6-8 6z" fill="#999"/></svg>`;
-}
+/* ====== PLACEHOLDERS (cached) ====== */
+const PLACEHOLDER = `<svg class="card-thumb-placeholder" viewBox="0 0 40 40" fill="none" stroke="#ccc" stroke-width="2"><rect x="4" y="4" width="32" height="32"/><path d="M16 14l8 6-8 6z" fill="#ccc"/></svg>`;
+const PLACEHOLDER_SM = `<svg style="width:24px;height:24px;opacity:0.2" viewBox="0 0 40 40" fill="none" stroke="#999" stroke-width="2"><rect x="4" y="4" width="32" height="32"/><path d="M16 14l8 6-8 6z" fill="#999"/></svg>`;
 
 /* ====== VIEW TOGGLE ====== */
 function updateVistaIcons() {
-  // Videos
   const vGrid = dom.toggleVideoView.querySelector('.icon-grid');
   const vList = dom.toggleVideoView.querySelector('.icon-lista');
   vGrid.classList.toggle('active', state.videoView === 'icon');
   vList.classList.toggle('active', state.videoView === 'list');
 
-  // Games
   const gGrid = dom.toggleGameView.querySelector('.icon-grid');
   const gList = dom.toggleGameView.querySelector('.icon-lista');
   gGrid.classList.toggle('active', state.gameView === 'icon');
@@ -268,31 +258,20 @@ function updateVistaIcons() {
 /* ====== MAP ====== */
 function renderMap() {
   const social = state.data.social;
+  const land = getVar('--map-land');
+  const sea = getVar('--map-sea');
 
-  // Build SVG map
   const mapSvg = `
     <svg viewBox="0 0 600 450" xmlns="http://www.w3.org/2000/svg">
-      <!-- Parchment background -->
-      <rect width="600" height="450" fill="${getVar('--map-sea')}" rx="4"/>
-
-      <!-- Ragged parchment edges -->
-      <path d="M8 12 Q15 8 20 14 L25 10 Q35 6 40 12 L590 10 Q596 15 592 20 L594 430 Q590 440 580 438 L20 442 Q10 440 12 430 Z" fill="${getVar('--map-sea')}" stroke="#b8b0a0" stroke-width="1.5"/>
-
-      <!-- Landmasses -->
-      <path d="M80 80 Q120 50 180 70 Q200 40 240 60 Q260 50 280 70 Q290 90 270 110 Q300 130 280 160 Q260 180 220 170 Q200 200 160 180 Q130 190 110 160 Q80 150 70 120 Q60 100 80 80Z" fill="${getVar('--map-land')}" opacity="0.85"/>
-
-      <path d="M320 100 Q370 60 430 80 Q470 70 500 100 Q530 120 520 160 Q540 200 510 230 Q480 250 440 240 Q400 260 360 230 Q330 210 340 170 Q310 140 320 100Z" fill="${getVar('--map-land')}" opacity="0.75"/>
-
-      <path d="M150 260 Q200 230 260 250 Q300 240 340 270 Q370 300 350 340 Q330 370 280 360 Q240 380 200 350 Q160 340 150 300 Q140 280 150 260Z" fill="${getVar('--map-land')}" opacity="0.8"/>
-
-      <path d="M420 280 Q460 260 500 280 Q530 300 520 340 Q510 370 470 370 Q440 380 420 350 Q400 320 420 280Z" fill="${getVar('--map-land')}" opacity="0.7"/>
-
-      <!-- Small islands -->
-      <ellipse cx="100" cy="230" rx="25" ry="18" fill="${getVar('--map-land')}" opacity="0.6"/>
-      <ellipse cx="480" cy="200" rx="20" ry="14" fill="${getVar('--map-land')}" opacity="0.55"/>
-      <ellipse cx="300" cy="400" rx="30" ry="15" fill="${getVar('--map-land')}" opacity="0.5"/>
-
-      <!-- Compass lines -->
+      <rect width="600" height="450" fill="${sea}"/>
+      <path d="M8 12 Q15 8 20 14 L25 10 Q35 6 40 12 L590 10 Q596 15 592 20 L594 430 Q590 440 580 438 L20 442 Q10 440 12 430 Z" fill="${sea}" stroke="#b8b0a0" stroke-width="1.5"/>
+      <path d="M80 80 Q120 50 180 70 Q200 40 240 60 Q260 50 280 70 Q290 90 270 110 Q300 130 280 160 Q260 180 220 170 Q200 200 160 180 Q130 190 110 160 Q80 150 70 120 Q60 100 80 80Z" fill="${land}" opacity="0.85"/>
+      <path d="M320 100 Q370 60 430 80 Q470 70 500 100 Q530 120 520 160 Q540 200 510 230 Q480 250 440 240 Q400 260 360 230 Q330 210 340 170 Q310 140 320 100Z" fill="${land}" opacity="0.75"/>
+      <path d="M150 260 Q200 230 260 250 Q300 240 340 270 Q370 300 350 340 Q330 370 280 360 Q240 380 200 350 Q160 340 150 300 Q140 280 150 260Z" fill="${land}" opacity="0.8"/>
+      <path d="M420 280 Q460 260 500 280 Q530 300 520 340 Q510 370 470 370 Q440 380 420 350 Q400 320 420 280Z" fill="${land}" opacity="0.7"/>
+      <ellipse cx="100" cy="230" rx="25" ry="18" fill="${land}" opacity="0.6"/>
+      <ellipse cx="480" cy="200" rx="20" ry="14" fill="${land}" opacity="0.55"/>
+      <ellipse cx="300" cy="400" rx="30" ry="15" fill="${land}" opacity="0.5"/>
       <line x1="550" y1="30" x2="550" y2="70" stroke="#b8b0a0" stroke-width="1" opacity="0.4"/>
       <line x1="530" y1="50" x2="570" y2="50" stroke="#b8b0a0" stroke-width="1" opacity="0.4"/>
       <text x="550" y="25" text-anchor="middle" fill="#b8b0a0" font-size="10" opacity="0.5">N</text>
@@ -301,7 +280,6 @@ function renderMap() {
 
   dom.mapContent.innerHTML = `<div class="map-container">${mapSvg}</div>`;
 
-  // Place pins
   const container = dom.mapContent.querySelector('.map-container');
   social.forEach(s => {
     const pin = document.createElement('a');
@@ -309,11 +287,10 @@ function renderMap() {
     pin.target = '_blank';
     pin.rel = 'noopener noreferrer';
     pin.className = 'map-pin';
+    pin.setAttribute('aria-label', s.label);
     pin.style.left = s.mapX + '%';
     pin.style.top = s.mapY + '%';
     pin.innerHTML = socialIcon(s.icon) + `<span class="map-pin-label">${s.label}</span>`;
-    pin.addEventListener('mouseenter', () => { if (state.hasHover) playSound('hover'); });
-    pin.addEventListener('click', (e) => { playSound('click'); });
     container.appendChild(pin);
   });
 }
@@ -339,71 +316,49 @@ function initAudio() {
   if (state.audioCtx) return;
   try {
     state.audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-  } catch (e) {
-    console.warn('Web Audio not supported');
-  }
+  } catch (e) { /* no audio support */ }
 }
 
 function playSound(type) {
   if (!state.audioCtx) return;
   const ctx = state.audioCtx;
   const now = ctx.currentTime;
+
+  if (type === 'open' || type === 'close') {
+    const freqs = type === 'open' ? [440, 554, 660] : [660, 554, 440];
+    const step = type === 'open' ? 0.06 : 0.05;
+    freqs.forEach((freq, i) => {
+      const osc = ctx.createOscillator();
+      const g = ctx.createGain();
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(freq, now + i * step);
+      g.gain.setValueAtTime(0.08, now + i * step);
+      g.gain.exponentialRampToValueAtTime(0.001, now + i * step + 0.12);
+      osc.connect(g).connect(ctx.destination);
+      osc.start(now + i * step);
+      osc.stop(now + i * step + 0.12);
+    });
+    return;
+  }
+
   const gain = ctx.createGain();
   gain.connect(ctx.destination);
+  const osc = ctx.createOscillator();
+  osc.type = 'sine';
+  osc.connect(gain);
 
-  switch (type) {
-    case 'hover': {
-      const osc = ctx.createOscillator();
-      osc.type = 'sine';
-      osc.frequency.setValueAtTime(900, now);
-      osc.frequency.exponentialRampToValueAtTime(1200, now + 0.04);
-      gain.gain.setValueAtTime(0.06, now);
-      gain.gain.exponentialRampToValueAtTime(0.001, now + 0.06);
-      osc.connect(gain);
-      osc.start(now);
-      osc.stop(now + 0.06);
-      break;
-    }
-    case 'click': {
-      const osc = ctx.createOscillator();
-      osc.type = 'sine';
-      osc.frequency.setValueAtTime(660, now);
-      osc.frequency.exponentialRampToValueAtTime(440, now + 0.08);
-      gain.gain.setValueAtTime(0.1, now);
-      gain.gain.exponentialRampToValueAtTime(0.001, now + 0.1);
-      osc.connect(gain);
-      osc.start(now);
-      osc.stop(now + 0.1);
-      break;
-    }
-    case 'open': {
-      [440, 554, 660].forEach((freq, i) => {
-        const osc = ctx.createOscillator();
-        const g = ctx.createGain();
-        osc.type = 'sine';
-        osc.frequency.setValueAtTime(freq, now + i * 0.06);
-        g.gain.setValueAtTime(0.08, now + i * 0.06);
-        g.gain.exponentialRampToValueAtTime(0.001, now + i * 0.06 + 0.12);
-        osc.connect(g).connect(ctx.destination);
-        osc.start(now + i * 0.06);
-        osc.stop(now + i * 0.06 + 0.12);
-      });
-      return; // already connected to destination
-    }
-    case 'close': {
-      [660, 554, 440].forEach((freq, i) => {
-        const osc = ctx.createOscillator();
-        const g = ctx.createGain();
-        osc.type = 'sine';
-        osc.frequency.setValueAtTime(freq, now + i * 0.05);
-        g.gain.setValueAtTime(0.07, now + i * 0.05);
-        g.gain.exponentialRampToValueAtTime(0.001, now + i * 0.05 + 0.1);
-        osc.connect(g).connect(ctx.destination);
-        osc.start(now + i * 0.05);
-        osc.stop(now + i * 0.05 + 0.1);
-      });
-      return;
-    }
+  if (type === 'hover') {
+    osc.frequency.setValueAtTime(900, now);
+    osc.frequency.exponentialRampToValueAtTime(1200, now + 0.04);
+    gain.gain.setValueAtTime(0.06, now);
+    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.06);
+    osc.start(now); osc.stop(now + 0.06);
+  } else if (type === 'click') {
+    osc.frequency.setValueAtTime(660, now);
+    osc.frequency.exponentialRampToValueAtTime(440, now + 0.08);
+    gain.gain.setValueAtTime(0.1, now);
+    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.1);
+    osc.start(now); osc.stop(now + 0.1);
   }
 }
 
@@ -429,11 +384,8 @@ function bindEvents() {
     btn.addEventListener('click', (e) => {
       e.stopPropagation();
       const frame = btn.closest('.window-frame');
-      if (frame.id === 'window-player') {
-        closePlayer(true);
-      } else {
-        closeWindow(true);
-      }
+      if (frame.id === 'window-player') closePlayer(true);
+      else closeWindow(true);
     });
   });
 
@@ -447,6 +399,34 @@ function bindEvents() {
       else closeWindow(true);
     }
   });
+
+  // Event delegation for video cards
+  dom.videosContent.addEventListener('click', (e) => {
+    const card = e.target.closest('[data-video-id]');
+    if (!card) return;
+    playSound('click');
+    openPlayer(card.dataset.videoId);
+  });
+
+  // Event delegation for game cards
+  dom.gamesContent.addEventListener('click', (e) => {
+    const card = e.target.closest('[data-game-id]');
+    if (!card) return;
+    playSound('click');
+    const game = state.data.games.find(g => g.id === card.dataset.gameId);
+    if (game && game.itchUrl) {
+      const isMobile = window.innerWidth < 768;
+      if (isMobile) window.location.href = game.itchUrl;
+      else window.open(game.itchUrl, '_blank', 'noopener,noreferrer');
+    }
+  });
+
+  // Hover sounds on map pins (delegated)
+  if (state.hasHover) {
+    dom.mapContent.addEventListener('mouseenter', (e) => {
+      if (e.target.closest('.map-pin')) playSound('hover');
+    }, true);
+  }
 
   // View toggles
   dom.toggleVideoView.addEventListener('click', (e) => {

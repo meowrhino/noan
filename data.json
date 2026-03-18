@@ -1,4 +1,17 @@
 {
+  "theme": {
+    "bg": "#c8c0a8",
+    "panelBg": "#3d3532",
+    "accent": "#c47a4a",
+    "accentLight": "#d4956b",
+    "accentDark": "#a05a2a",
+    "accentPale": "#d9a67a",
+    "mapLand": "#a8b67a",
+    "mapSea": "#e8e0c8",
+    "textDark": "#3d3532",
+    "textLight": "#e8e0c8",
+    "shadow": "#2a2220"
+  },
   "about": {
     "name": "Noan Cittadino",
     "title": "Audio / Game Audio",
