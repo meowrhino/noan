@@ -6,6 +6,7 @@ const state = {
   videoView: 'icon',    // 'icon' | 'column' | 'list'
   gameView: 'column',   // 'icon' | 'column' | 'list'
   audioCtx: null,
+  soundBuffers: {},   // preloaded MP3 buffers
   mapRendered: false,
   hasHover: window.matchMedia('(hover: hover)').matches,
   homeOpen: true,
@@ -129,7 +130,10 @@ function openWindow(id) {
   win.classList.add('open');
 
   state.activeWindow = id;
-  playSound('open');
+
+  // Window-specific open sounds
+  const openSounds = { 'window-videos': 'openVideos', 'window-games': 'openGames', 'window-map': 'openMap' };
+  playSound(openSounds[id] || 'open');
 
   if (id === 'window-videos') renderVideos();
   else if (id === 'window-games') renderGames();
@@ -445,12 +449,41 @@ function initAudio() {
   if (state.audioCtx) return;
   try {
     state.audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    preloadSounds();
   } catch (e) { /* no audio support */ }
+}
+
+async function preloadSounds() {
+  const sfx = state.data && state.data.soundEffects;
+  if (!sfx) return;
+  const ctx = state.audioCtx;
+  for (const [type, path] of Object.entries(sfx)) {
+    if (!path) continue;
+    try {
+      const res = await fetch(path);
+      if (!res.ok) continue;
+      const buf = await res.arrayBuffer();
+      state.soundBuffers[type] = await ctx.decodeAudioData(buf);
+    } catch (e) {
+      console.warn(`Failed to load sound: ${type}`, e);
+    }
+  }
 }
 
 function playSound(type) {
   if (!state.audioCtx) return;
   const ctx = state.audioCtx;
+
+  // Use MP3 if available
+  if (state.soundBuffers[type]) {
+    const source = ctx.createBufferSource();
+    source.buffer = state.soundBuffers[type];
+    source.connect(ctx.destination);
+    source.start();
+    return;
+  }
+
+  // Fallback: synthesized sounds
   const now = ctx.currentTime;
 
   if (type === 'open' || type === 'close') {
@@ -496,10 +529,10 @@ function bindEvents() {
   // Init audio on first interaction
   document.addEventListener('click', () => initAudio(), { once: true });
 
-  // Nav buttons
-  dom.btnVideos.addEventListener('click', () => { playSound('click'); openWindow('window-videos'); });
-  dom.btnGames.addEventListener('click', () => { playSound('click'); openWindow('window-games'); });
-  dom.btnMap.addEventListener('click', () => { playSound('click'); openWindow('window-map'); });
+  // Nav buttons (each has its own click + open sound)
+  dom.btnVideos.addEventListener('click', () => { playSound('clickVideos'); openWindow('window-videos'); });
+  dom.btnGames.addEventListener('click', () => { playSound('clickGames'); openWindow('window-games'); });
+  dom.btnMap.addEventListener('click', () => { playSound('clickMap'); openWindow('window-map'); });
 
   // Hover sounds (only on pointer devices)
   if (state.hasHover) {

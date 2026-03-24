@@ -66,6 +66,18 @@
       "itchEmbed": null
     }
   ],
+  "soundEffects": {
+    "clickVideos": "assets/sounds/click.mp3",
+    "clickGames": "assets/sounds/click.mp3",
+    "clickMap": "assets/sounds/click.mp3",
+    "openVideos": "assets/sounds/open.mp3",
+    "openGames": "assets/sounds/open.mp3",
+    "openMap": "assets/sounds/open.mp3",
+    "close": "assets/sounds/close.mp3",
+    "hover": "assets/sounds/hover.mp3",
+    "click": "assets/sounds/click.mp3",
+    "open": "assets/sounds/open.mp3"
+  },
   "social": [
     { "id": "instagram",  "label": "Instagram",  "url": "https://www.instagram.com/nooanishere/",                "icon": "instagram",  "mapX": 28, "mapY": 55 },
     { "id": "linkedin",   "label": "LinkedIn",   "url": "https://www.linkedin.com/in/noan-cittadino-290587263/", "icon": "linkedin",   "mapX": 68, "mapY": 22 },
