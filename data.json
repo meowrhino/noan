@@ -14,7 +14,6 @@
   },
   "about": {
     "name": "Noan Cittadino",
-    "title": "Audio / Game Audio",
     "bio": "Composer, sound designer and FMOD enthusiast based in Barcelona. I make music for games, re-compose soundtracks for fun, and spend way too much time tweaking reverb tails. Currently looking for cool projects to fill with sound.",
     "portrait": "assets/portrait.png"
   },
@@ -46,24 +45,21 @@
       "title": "Strange Realm",
       "description": "Made for Brackeys Game Jam 2026.1 by a team of 4 people in 6 days.",
       "role": "Audio department: Music, SFX and FMOD Implementation.",
-      "itchUrl": "https://code-gremlins.itch.io/strange-realm",
-      "itchEmbed": "https://itch.io/embed/4313129"
+      "itchUrl": "https://code-gremlins.itch.io/strange-realm"
     },
     {
       "id": "fmod-test",
       "title": "Nooan's FMOD Test Project",
       "description": "A short game I made to teach myself how to use FMOD.",
       "role": "Game Dev, Music and FMOD Implementation.",
-      "itchUrl": "https://nooanmusic.itch.io/nooans-fmod-test-project",
-      "itchEmbed": "https://itch.io/embed/4325888"
+      "itchUrl": "https://nooanmusic.itch.io/nooans-fmod-test-project"
     },
     {
       "id": "ups",
       "title": "UPS (Ultimate Parcel Serpent)",
       "description": "A snake-inspired parcel delivery game.",
       "role": "FMOD Implementation (music and audio not mine!).",
-      "itchUrl": "https://exorion.itch.io/ultimate-parcel-serpent",
-      "itchEmbed": null
+      "itchUrl": "https://exorion.itch.io/ultimate-parcel-serpent"
     }
   ],
   "soundEffects": {

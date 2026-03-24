@@ -456,11 +456,6 @@ img { display: block; max-width: 100%; }
   object-fit: cover;
 }
 
-.card-thumb-placeholder {
-  width: 40px;
-  height: 40px;
-  opacity: 0.2;
-}
 
 .card-info {
   padding: 8px 10px;

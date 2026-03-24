@@ -305,10 +305,6 @@ function renderGamesList() {
   `).join('')}</div>`;
 }
 
-/* ====== PLACEHOLDERS (cached) ====== */
-const PLACEHOLDER = `<svg class="card-thumb-placeholder" viewBox="0 0 40 40" fill="none" stroke="#ccc" stroke-width="2"><rect x="4" y="4" width="32" height="32"/><path d="M16 14l8 6-8 6z" fill="#ccc"/></svg>`;
-const PLACEHOLDER_SM = `<svg style="width:24px;height:24px;opacity:0.2" viewBox="0 0 40 40" fill="none" stroke="#999" stroke-width="2"><rect x="4" y="4" width="32" height="32"/><path d="M16 14l8 6-8 6z" fill="#999"/></svg>`;
-
 /* ====== VIEW TOGGLE ====== */
 function updateVistaIcons() {
   const vGrid = dom.toggleVideoView.querySelector('.icon-grid');
@@ -337,55 +333,74 @@ function initDrag() {
   let dragging = null;
   let offsetX = 0, offsetY = 0;
 
-  titlebars.forEach(bar => {
-    bar.addEventListener('mousedown', (e) => {
-      // Don't drag if clicking a button
-      if (e.target.closest('button')) return;
+  function startDrag(bar, clientX, clientY) {
+    if (!bar) return;
+    const frame = bar.closest('.window-frame') || bar.closest('#home-panel');
+    if (!frame) return;
 
-      const frame = bar.closest('.window-frame') || bar.closest('#home-panel');
-      if (!frame) return;
+    dragging = frame;
+    const rect = frame.getBoundingClientRect();
+    offsetX = clientX - rect.left;
+    offsetY = clientY - rect.top;
+    frame.classList.add('dragging');
+  }
 
-      dragging = frame;
-      const rect = frame.getBoundingClientRect();
-      offsetX = e.clientX - rect.left;
-      offsetY = e.clientY - rect.top;
-
-      frame.classList.add('dragging');
-      e.preventDefault();
-    });
-  });
-
-  document.addEventListener('mousemove', (e) => {
+  function moveDrag(clientX, clientY) {
     if (!dragging) return;
 
-    const x = e.clientX - offsetX;
-    const y = e.clientY - offsetY;
+    const x = clientX - offsetX;
+    const y = clientY - offsetY;
 
     // For home-panel, switch to fixed positioning on first drag
     if (dragging.id === 'home-panel' && dragging.style.position !== 'fixed') {
-      const rect = dragging.getBoundingClientRect();
       dragging.style.position = 'fixed';
-      dragging.style.left = rect.left + 'px';
-      dragging.style.top = rect.top + 'px';
+      dragging.style.left = dragging.getBoundingClientRect().left + 'px';
+      dragging.style.top = dragging.getBoundingClientRect().top + 'px';
       dragging.style.margin = '0';
-      dragging.style.zIndex = '50';
+      dragging.style.zIndex = '100';
     }
 
     dragging.style.left = x + 'px';
     dragging.style.top = y + 'px';
 
-    // For window-frames, remove the centering transform
     if (dragging.classList.contains('window-frame')) {
       dragging.classList.add('dragged');
     }
-  });
+  }
 
-  document.addEventListener('mouseup', () => {
+  function endDrag() {
     if (dragging) {
       dragging.classList.remove('dragging');
       dragging = null;
     }
+  }
+
+  // Mouse events
+  titlebars.forEach(bar => {
+    bar.addEventListener('mousedown', (e) => {
+      if (e.target.closest('button')) return;
+      startDrag(bar, e.clientX, e.clientY);
+      e.preventDefault();
+    });
   });
+  document.addEventListener('mousemove', (e) => moveDrag(e.clientX, e.clientY));
+  document.addEventListener('mouseup', endDrag);
+
+  // Touch events
+  titlebars.forEach(bar => {
+    bar.addEventListener('touchstart', (e) => {
+      if (e.target.closest('button')) return;
+      const t = e.touches[0];
+      startDrag(bar, t.clientX, t.clientY);
+    }, { passive: true });
+  });
+  document.addEventListener('touchmove', (e) => {
+    if (!dragging) return;
+    e.preventDefault();
+    const t = e.touches[0];
+    moveDrag(t.clientX, t.clientY);
+  }, { passive: false });
+  document.addEventListener('touchend', endDrag);
 }
 
 /* ====== MAP ====== */
