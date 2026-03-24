@@ -11,7 +11,7 @@
   <link rel="icon" href="favicon.svg" type="image/svg+xml">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Patrick+Hand&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Pahawh+Hmong&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -19,6 +19,13 @@
   <!-- ====== HOME SCREEN ====== -->
   <div id="home-screen">
     <div id="home-panel">
+      <div class="window-titlebar" id="home-titlebar">
+        <span class="window-title">Noan Cittadino</span>
+        <div class="titlebar-controls">
+          <button class="close-btn" id="close-home" aria-label="Close" title="Close">&times;</button>
+        </div>
+      </div>
+      <div id="home-body">
 
       <nav id="nav-buttons">
         <!-- Backpack / Videos -->
@@ -63,13 +70,15 @@
           <img id="portrait-img" src="" alt="Noan Cittadino">
         </div>
         <div id="about-text">
-          <h1 id="about-title">About</h1>
-          <p id="about-name"></p>
           <p id="about-bio"></p>
         </div>
       </div>
 
+      </div>
     </div>
+
+    <!-- Reopen button -->
+    <button id="reopen-btn" hidden>noan</button>
   </div>
 
   <!-- ====== WINDOW OVERLAY ====== -->
@@ -82,6 +91,7 @@
       <div class="titlebar-controls">
         <button class="vista-btn" id="toggle-video-view" aria-label="Toggle view" title="Toggle view">
           <span class="icon-grid"><span></span><span></span><span></span><span></span></span>
+          <span class="icon-column"><span></span><span></span></span>
           <span class="icon-lista"><span></span><span></span><span></span></span>
         </button>
         <button class="close-btn" aria-label="Close" title="Close">&times;</button>
@@ -97,6 +107,7 @@
       <div class="titlebar-controls">
         <button class="vista-btn" id="toggle-game-view" aria-label="Toggle view" title="Toggle view">
           <span class="icon-grid"><span></span><span></span><span></span><span></span></span>
+          <span class="icon-column"><span></span><span></span></span>
           <span class="icon-lista"><span></span><span></span><span></span></span>
         </button>
         <button class="close-btn" aria-label="Close" title="Close">&times;</button>

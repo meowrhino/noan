@@ -3,12 +3,15 @@ const state = {
   data: null,
   activeWindow: null,
   playerWindow: false,
-  videoView: 'icon',
-  gameView: 'icon',
+  videoView: 'icon',    // 'icon' | 'column' | 'list'
+  gameView: 'column',   // 'icon' | 'column' | 'list'
   audioCtx: null,
   mapRendered: false,
   hasHover: window.matchMedia('(hover: hover)').matches,
+  homeOpen: true,
 };
+
+const VIEW_CYCLE = ['icon', 'column', 'list'];
 
 /* ====== ASSET PATHS (derived from id) ====== */
 function thumbPath(id) { return `assets/thumbnails/${id}.png`; }
@@ -20,12 +23,12 @@ const dom = {};
 function cacheDom() {
   dom.homeScreen = document.getElementById('home-screen');
   dom.homePanel = document.getElementById('home-panel');
+  dom.reopenBtn = document.getElementById('reopen-btn');
+  dom.closeHome = document.getElementById('close-home');
   dom.btnVideos = document.getElementById('btn-videos');
   dom.btnGames = document.getElementById('btn-games');
   dom.btnMap = document.getElementById('btn-map');
   dom.portraitImg = document.getElementById('portrait-img');
-  dom.aboutTitle = document.getElementById('about-title');
-  dom.aboutName = document.getElementById('about-name');
   dom.aboutBio = document.getElementById('about-bio');
   dom.overlay = document.getElementById('window-overlay');
   dom.windowVideos = document.getElementById('window-videos');
@@ -50,6 +53,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   renderHome();
   bindEvents();
   updateVistaIcons();
+  initDrag();
 });
 
 /* ====== DATA LOADING ====== */
@@ -86,8 +90,26 @@ function renderHome() {
   const d = state.data;
   dom.portraitImg.src = d.about.portrait;
   dom.portraitImg.alt = d.about.name;
-  dom.aboutName.textContent = d.about.name + ' — ' + d.about.title;
   dom.aboutBio.textContent = d.about.bio;
+}
+
+/* ====== HOME PANEL OPEN/CLOSE ====== */
+function closeHome() {
+  dom.homePanel.classList.add('hidden');
+  dom.reopenBtn.hidden = false;
+  state.homeOpen = false;
+  playSound('close');
+}
+
+function openHome() {
+  dom.reopenBtn.hidden = true;
+  dom.homePanel.classList.remove('hidden');
+  // Reset position if it was dragged
+  dom.homePanel.style.position = '';
+  dom.homePanel.style.left = '';
+  dom.homePanel.style.top = '';
+  state.homeOpen = true;
+  playSound('open');
 }
 
 /* ====== WINDOW SYSTEM ====== */
@@ -129,6 +151,10 @@ function closeWindow(withSound = true) {
   setTimeout(() => {
     win.hidden = true;
     dom.overlay.hidden = true;
+    // Reset drag position
+    win.style.left = '';
+    win.style.top = '';
+    win.classList.remove('dragged');
   }, ANIM_MS);
 
   state.activeWindow = null;
@@ -140,7 +166,6 @@ function openPlayer(videoId) {
 
   dom.playerTitle.textContent = video.title;
 
-  // Use createElement for safety
   dom.playerContent.innerHTML = '';
   const vid = document.createElement('video');
   vid.controls = true;
@@ -168,6 +193,9 @@ function closePlayer(withSound = true) {
   setTimeout(() => {
     dom.windowPlayer.hidden = true;
     dom.playerContent.innerHTML = '';
+    dom.windowPlayer.style.left = '';
+    dom.windowPlayer.style.top = '';
+    dom.windowPlayer.classList.remove('dragged');
   }, ANIM_MS);
 
   state.playerWindow = false;
@@ -176,12 +204,27 @@ function closePlayer(withSound = true) {
 /* ====== VIDEOS ====== */
 function renderVideos() {
   if (state.videoView === 'icon') renderVideosIcon();
+  else if (state.videoView === 'column') renderVideosColumn();
   else renderVideosList();
 }
 
 function renderVideosIcon() {
   const vids = state.data.videos;
   dom.videosContent.innerHTML = `<div class="cards-grid">${vids.map(v => `
+    <div class="card card-video" data-video-id="${v.id}">
+      <div class="card-thumb">
+        <img src="${thumbPath(v.id)}" alt="${v.title}" loading="lazy" onerror="this.style.display='none'">
+      </div>
+      <div class="card-info">
+        <span class="card-title">${v.title}</span>
+      </div>
+    </div>
+  `).join('')}</div>`;
+}
+
+function renderVideosColumn() {
+  const vids = state.data.videos;
+  dom.videosContent.innerHTML = `<div class="cards-column">${vids.map(v => `
     <div class="card card-video" data-video-id="${v.id}">
       <div class="card-thumb">
         <img src="${thumbPath(v.id)}" alt="${v.title}" loading="lazy" onerror="this.style.display='none'">
@@ -210,6 +253,7 @@ function renderVideosList() {
 /* ====== GAMES ====== */
 function renderGames() {
   if (state.gameView === 'icon') renderGamesIcon();
+  else if (state.gameView === 'column') renderGamesColumn();
   else renderGamesList();
 }
 
@@ -222,6 +266,21 @@ function renderGamesIcon() {
       </div>
       <div class="card-info">
         <span class="card-title">${g.title}</span>
+      </div>
+    </div>
+  `).join('')}</div>`;
+}
+
+function renderGamesColumn() {
+  const games = state.data.games;
+  dom.gamesContent.innerHTML = `<div class="cards-column">${games.map(g => `
+    <div class="card card-game" data-game-id="${g.id}">
+      <div class="card-thumb">
+        <img src="${thumbPath(g.id)}" alt="${g.title}" loading="lazy" onerror="this.style.display='none'">
+      </div>
+      <div class="card-info">
+        <span class="card-title">${g.title}</span>
+        <span class="card-desc-gray">${g.description || ''}</span>
       </div>
     </div>
   `).join('')}</div>`;
@@ -249,14 +308,80 @@ const PLACEHOLDER_SM = `<svg style="width:24px;height:24px;opacity:0.2" viewBox=
 /* ====== VIEW TOGGLE ====== */
 function updateVistaIcons() {
   const vGrid = dom.toggleVideoView.querySelector('.icon-grid');
+  const vCol = dom.toggleVideoView.querySelector('.icon-column');
   const vList = dom.toggleVideoView.querySelector('.icon-lista');
   vGrid.classList.toggle('active', state.videoView === 'icon');
+  vCol.classList.toggle('active', state.videoView === 'column');
   vList.classList.toggle('active', state.videoView === 'list');
 
   const gGrid = dom.toggleGameView.querySelector('.icon-grid');
+  const gCol = dom.toggleGameView.querySelector('.icon-column');
   const gList = dom.toggleGameView.querySelector('.icon-lista');
   gGrid.classList.toggle('active', state.gameView === 'icon');
+  gCol.classList.toggle('active', state.gameView === 'column');
   gList.classList.toggle('active', state.gameView === 'list');
+}
+
+function nextView(current) {
+  const i = VIEW_CYCLE.indexOf(current);
+  return VIEW_CYCLE[(i + 1) % VIEW_CYCLE.length];
+}
+
+/* ====== DRAGGABLE WINDOWS ====== */
+function initDrag() {
+  const titlebars = document.querySelectorAll('.window-titlebar');
+  let dragging = null;
+  let offsetX = 0, offsetY = 0;
+
+  titlebars.forEach(bar => {
+    bar.addEventListener('mousedown', (e) => {
+      // Don't drag if clicking a button
+      if (e.target.closest('button')) return;
+
+      const frame = bar.closest('.window-frame') || bar.closest('#home-panel');
+      if (!frame) return;
+
+      dragging = frame;
+      const rect = frame.getBoundingClientRect();
+      offsetX = e.clientX - rect.left;
+      offsetY = e.clientY - rect.top;
+
+      frame.classList.add('dragging');
+      e.preventDefault();
+    });
+  });
+
+  document.addEventListener('mousemove', (e) => {
+    if (!dragging) return;
+
+    const x = e.clientX - offsetX;
+    const y = e.clientY - offsetY;
+
+    // For home-panel, switch to fixed positioning on first drag
+    if (dragging.id === 'home-panel' && dragging.style.position !== 'fixed') {
+      const rect = dragging.getBoundingClientRect();
+      dragging.style.position = 'fixed';
+      dragging.style.left = rect.left + 'px';
+      dragging.style.top = rect.top + 'px';
+      dragging.style.margin = '0';
+      dragging.style.zIndex = '50';
+    }
+
+    dragging.style.left = x + 'px';
+    dragging.style.top = y + 'px';
+
+    // For window-frames, remove the centering transform
+    if (dragging.classList.contains('window-frame')) {
+      dragging.classList.add('dragged');
+    }
+  });
+
+  document.addEventListener('mouseup', () => {
+    if (dragging) {
+      dragging.classList.remove('dragging');
+      dragging = null;
+    }
+  });
 }
 
 /* ====== MAP ====== */
@@ -383,14 +508,25 @@ function bindEvents() {
     });
   }
 
-  // Close buttons
-  document.querySelectorAll('.close-btn').forEach(btn => {
+  // Close buttons for window frames
+  document.querySelectorAll('.window-frame .close-btn').forEach(btn => {
     btn.addEventListener('click', (e) => {
       e.stopPropagation();
       const frame = btn.closest('.window-frame');
       if (frame.id === 'window-player') closePlayer(true);
       else closeWindow(true);
     });
+  });
+
+  // Close home panel
+  dom.closeHome.addEventListener('click', (e) => {
+    e.stopPropagation();
+    closeHome();
+  });
+
+  // Reopen button
+  dom.reopenBtn.addEventListener('click', () => {
+    openHome();
   });
 
   // Overlay closes window
@@ -400,7 +536,7 @@ function bindEvents() {
   document.addEventListener('keydown', (e) => {
     if (e.key === 'Escape') {
       if (state.playerWindow) closePlayer(true);
-      else closeWindow(true);
+      else if (state.activeWindow) closeWindow(true);
     }
   });
 
@@ -432,11 +568,11 @@ function bindEvents() {
     }, true);
   }
 
-  // View toggles
+  // View toggles (3-way cycle: icon → column → list)
   dom.toggleVideoView.addEventListener('click', (e) => {
     e.stopPropagation();
     playSound('click');
-    state.videoView = state.videoView === 'icon' ? 'list' : 'icon';
+    state.videoView = nextView(state.videoView);
     updateVistaIcons();
     renderVideos();
   });
@@ -444,7 +580,7 @@ function bindEvents() {
   dom.toggleGameView.addEventListener('click', (e) => {
     e.stopPropagation();
     playSound('click');
-    state.gameView = state.gameView === 'icon' ? 'list' : 'icon';
+    state.gameView = nextView(state.gameView);
     updateVistaIcons();
     renderGames();
   });
