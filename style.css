@@ -14,6 +14,8 @@
   --text-light:      #e8e0c8;
   --shadow:          #2a2220;
   --btn-size:        clamp(52px, 8vw, 80px);
+  /* --font-hand:    'Patrick Hand', cursive; */
+  /* --font-body:    'Patrick Hand', system-ui, sans-serif; */
   --font-hand:       'Noto Sans Pahawh Hmong', system-ui, sans-serif;
   --font-body:       'Noto Sans Pahawh Hmong', system-ui, sans-serif;
 }
@@ -293,74 +295,6 @@ img { display: block; max-width: 100%; }
   background: var(--accent-dark);
 }
 
-/* ====== VISTA TOGGLE BUTTON ====== */
-.vista-btn {
-  width: 36px;
-  height: 36px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-left: 3px solid var(--shadow);
-  background: var(--accent-light);
-  transition: background 0.08s;
-  position: relative;
-}
-
-.vista-btn:hover {
-  background: var(--accent-pale);
-}
-
-.icon-grid, .icon-column, .icon-lista {
-  display: none;
-  position: absolute;
-}
-
-.icon-grid.active, .icon-column.active, .icon-lista.active {
-  display: flex;
-}
-
-/* Grid icon: 2x2 squares */
-.icon-grid {
-  flex-wrap: wrap;
-  gap: 3px;
-  width: 15px;
-  height: 15px;
-}
-
-.icon-grid span {
-  width: 6px;
-  height: 6px;
-  background: var(--text-dark);
-}
-
-/* Column icon: 2 stacked rectangles */
-.icon-column {
-  flex-direction: column;
-  gap: 3px;
-  width: 15px;
-  height: 15px;
-}
-
-.icon-column span {
-  width: 100%;
-  height: 6px;
-  background: var(--text-dark);
-}
-
-/* List icon: 3 bars */
-.icon-lista {
-  flex-direction: column;
-  justify-content: space-between;
-  width: 15px;
-  height: 13px;
-}
-
-.icon-lista span {
-  width: 100%;
-  height: 3px;
-  background: var(--text-dark);
-}
-
 /* ====== WINDOW CONTENT ====== */
 .window-content {
   flex: 1;
@@ -525,63 +459,6 @@ img { display: block; max-width: 100%; }
   opacity: 0.7;
   line-height: 1.3;
   margin-top: 2px;
-}
-
-/* ====== CARDS — LIST VIEW ====== */
-.cards-list {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-}
-
-.list-item {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 8px 10px;
-  cursor: pointer;
-  transition: background 0.08s;
-  border-bottom: 2px solid rgba(255,255,255,0.08);
-}
-
-.list-item:hover {
-  background: rgba(196, 122, 74, 0.2);
-}
-
-.list-thumb {
-  width: 48px;
-  height: 36px;
-  overflow: hidden;
-  background: #fff;
-  flex-shrink: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border: 2px solid var(--shadow);
-}
-
-.list-thumb img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-
-.list-info {
-  flex: 1;
-  min-width: 0;
-}
-
-.list-title {
-  font-family: var(--font-hand);
-  font-size: 1rem;
-  color: var(--text-light);
-  line-height: 1.3;
-}
-
-.list-desc {
-  font-size: 0.78rem;
-  opacity: 0.55;
-  color: var(--text-light);
 }
 
 /* ====== VIDEO PLAYER ====== */

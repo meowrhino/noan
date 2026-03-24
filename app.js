@@ -3,16 +3,12 @@ const state = {
   data: null,
   activeWindow: null,
   playerWindow: false,
-  videoView: 'icon',    // 'icon' | 'column' | 'list'
-  gameView: 'column',   // 'icon' | 'column' | 'list'
   audioCtx: null,
   soundBuffers: {},   // preloaded MP3 buffers
   mapRendered: false,
   hasHover: window.matchMedia('(hover: hover)').matches,
   homeOpen: true,
 };
-
-const VIEW_CYCLE = ['icon', 'column', 'list'];
 
 /* ====== ASSET PATHS (derived from id) ====== */
 function thumbPath(id) { return `assets/thumbnails/${id}.png`; }
@@ -41,8 +37,6 @@ function cacheDom() {
   dom.mapContent = document.getElementById('map-content');
   dom.playerContent = document.getElementById('player-content');
   dom.playerTitle = document.getElementById('player-title');
-  dom.toggleVideoView = document.getElementById('toggle-video-view');
-  dom.toggleGameView = document.getElementById('toggle-game-view');
 }
 
 /* ====== INIT ====== */
@@ -53,7 +47,6 @@ document.addEventListener('DOMContentLoaded', async () => {
   applyTheme();
   renderHome();
   bindEvents();
-  updateVistaIcons();
   initDrag();
 });
 
@@ -205,14 +198,8 @@ function closePlayer(withSound = true) {
   state.playerWindow = false;
 }
 
-/* ====== VIDEOS ====== */
+/* ====== VIDEOS (grid view) ====== */
 function renderVideos() {
-  if (state.videoView === 'icon') renderVideosIcon();
-  else if (state.videoView === 'column') renderVideosColumn();
-  else renderVideosList();
-}
-
-function renderVideosIcon() {
   const vids = state.data.videos;
   dom.videosContent.innerHTML = `<div class="cards-grid">${vids.map(v => `
     <div class="card card-video" data-video-id="${v.id}">
@@ -226,56 +213,8 @@ function renderVideosIcon() {
   `).join('')}</div>`;
 }
 
-function renderVideosColumn() {
-  const vids = state.data.videos;
-  dom.videosContent.innerHTML = `<div class="cards-column">${vids.map(v => `
-    <div class="card card-video" data-video-id="${v.id}">
-      <div class="card-thumb">
-        <img src="${thumbPath(v.id)}" alt="${v.title}" loading="lazy" onerror="this.style.display='none'">
-      </div>
-      <div class="card-info">
-        <span class="card-title">${v.title}</span>
-      </div>
-    </div>
-  `).join('')}</div>`;
-}
-
-function renderVideosList() {
-  const vids = state.data.videos;
-  dom.videosContent.innerHTML = `<div class="cards-list">${vids.map(v => `
-    <div class="list-item" data-video-id="${v.id}">
-      <div class="list-thumb">
-        <img src="${thumbPath(v.id)}" alt="${v.title}" loading="lazy" onerror="this.style.display='none'">
-      </div>
-      <div class="list-info">
-        <span class="list-title">${v.title}</span>
-      </div>
-    </div>
-  `).join('')}</div>`;
-}
-
-/* ====== GAMES ====== */
+/* ====== GAMES (column view) ====== */
 function renderGames() {
-  if (state.gameView === 'icon') renderGamesIcon();
-  else if (state.gameView === 'column') renderGamesColumn();
-  else renderGamesList();
-}
-
-function renderGamesIcon() {
-  const games = state.data.games;
-  dom.gamesContent.innerHTML = `<div class="cards-grid">${games.map(g => `
-    <div class="card card-game" data-game-id="${g.id}">
-      <div class="card-thumb">
-        <img src="${thumbPath(g.id)}" alt="${g.title}" loading="lazy" onerror="this.style.display='none'">
-      </div>
-      <div class="card-info">
-        <span class="card-title">${g.title}</span>
-      </div>
-    </div>
-  `).join('')}</div>`;
-}
-
-function renderGamesColumn() {
   const games = state.data.games;
   dom.gamesContent.innerHTML = `<div class="cards-column">${games.map(g => `
     <div class="card card-game" data-game-id="${g.id}">
@@ -288,43 +227,6 @@ function renderGamesColumn() {
       </div>
     </div>
   `).join('')}</div>`;
-}
-
-function renderGamesList() {
-  const games = state.data.games;
-  dom.gamesContent.innerHTML = `<div class="cards-list">${games.map(g => `
-    <div class="list-item" data-game-id="${g.id}">
-      <div class="list-thumb">
-        <img src="${thumbPath(g.id)}" alt="${g.title}" loading="lazy" onerror="this.style.display='none'">
-      </div>
-      <div class="list-info">
-        <span class="list-title">${g.title}</span>
-        <span class="list-desc">${g.role}</span>
-      </div>
-    </div>
-  `).join('')}</div>`;
-}
-
-/* ====== VIEW TOGGLE ====== */
-function updateVistaIcons() {
-  const vGrid = dom.toggleVideoView.querySelector('.icon-grid');
-  const vCol = dom.toggleVideoView.querySelector('.icon-column');
-  const vList = dom.toggleVideoView.querySelector('.icon-lista');
-  vGrid.classList.toggle('active', state.videoView === 'icon');
-  vCol.classList.toggle('active', state.videoView === 'column');
-  vList.classList.toggle('active', state.videoView === 'list');
-
-  const gGrid = dom.toggleGameView.querySelector('.icon-grid');
-  const gCol = dom.toggleGameView.querySelector('.icon-column');
-  const gList = dom.toggleGameView.querySelector('.icon-lista');
-  gGrid.classList.toggle('active', state.gameView === 'icon');
-  gCol.classList.toggle('active', state.gameView === 'column');
-  gList.classList.toggle('active', state.gameView === 'list');
-}
-
-function nextView(current) {
-  const i = VIEW_CYCLE.indexOf(current);
-  return VIEW_CYCLE[(i + 1) % VIEW_CYCLE.length];
 }
 
 /* ====== DRAGGABLE WINDOWS ====== */
@@ -616,20 +518,4 @@ function bindEvents() {
     }, true);
   }
 
-  // View toggles (3-way cycle: icon → column → list)
-  dom.toggleVideoView.addEventListener('click', (e) => {
-    e.stopPropagation();
-    playSound('click');
-    state.videoView = nextView(state.videoView);
-    updateVistaIcons();
-    renderVideos();
-  });
-
-  dom.toggleGameView.addEventListener('click', (e) => {
-    e.stopPropagation();
-    playSound('click');
-    state.gameView = nextView(state.gameView);
-    updateVistaIcons();
-    renderGames();
-  });
 }
