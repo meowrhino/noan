@@ -99,6 +99,7 @@ function openHome() {
   dom.homePanel.style.position = '';
   dom.homePanel.style.left = '';
   dom.homePanel.style.top = '';
+  dom.homePanel.classList.remove('dragged');
   state.homeOpen = true;
   bringHomeFront();
   playSound('open');
@@ -112,13 +113,7 @@ function bringToFront(id) {
   if (idx !== -1) state.windowStack.splice(idx, 1);
   state.windowStack.push(id);
   const win = document.getElementById(id);
-  if (win) {
-    win.style.zIndex = state.nextZIndex++;
-    // Track as last used window position
-    if (win.classList.contains('dragged')) {
-      lastWindowPos = { x: win.offsetLeft, y: win.offsetTop };
-    }
-  }
+  if (win) win.style.zIndex = state.nextZIndex++;
 }
 
 function bringHomeFront() {
@@ -129,9 +124,10 @@ const CASCADE_GAP = 30;
 let lastWindowPos = null; // {x, y} of last used window
 
 function getNextWindowPos(w, h) {
-  if (lastWindowPos) {
+  if (lastWindowPos && state.openWindows.size > 0) {
     return { x: lastWindowPos.x + CASCADE_GAP, y: lastWindowPos.y + CASCADE_GAP };
   }
+  lastWindowPos = null;
   return { x: (window.innerWidth - w) / 2, y: (window.innerHeight - h) / 2 };
 }
 
