@@ -32,9 +32,9 @@ html, body {
 body::before {
   content: '';
   position: fixed;
-  inset: -50%;
-  width: 200%;
-  height: 200%;
+  inset: -75%;
+  width: 250%;
+  height: 250%;
   opacity: 0.55;
   background: repeating-conic-gradient(var(--accent-dark) 0% 25%, var(--bg) 0% 50%) 0 0 / 80px 80px;
   transform: rotate(45deg);
