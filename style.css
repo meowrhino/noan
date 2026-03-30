@@ -14,8 +14,6 @@
   --text-light:      #e8e0c8;
   --shadow:          #2a2220;
   --btn-size:        clamp(52px, 8vw, 80px);
-  /* --font-hand:    'Patrick Hand', cursive; */
-  /* --font-body:    'Patrick Hand', system-ui, sans-serif; */
   --font-hand:       'Lexend', system-ui, sans-serif;
   --font-body:       'Lexend', system-ui, sans-serif;
 }
@@ -308,27 +306,13 @@ img { display: block; max-width: 100%; }
   overflow-y: auto;
   padding: 12px;
   min-height: 0;
-}
-
-/* Custom scrollbar */
-.window-content::-webkit-scrollbar {
-  width: 18px;
-}
-
-.window-content::-webkit-scrollbar-track {
-  background: var(--accent-light);
-  border-left: 3px solid var(--shadow);
-}
-
-.window-content::-webkit-scrollbar-thumb {
-  background: var(--accent-dark);
-  border: 3px solid var(--accent-light);
-}
-
-.window-content {
   scrollbar-color: var(--accent-dark) var(--accent-light);
   scrollbar-width: auto;
 }
+
+.window-content::-webkit-scrollbar { width: 18px; }
+.window-content::-webkit-scrollbar-track { background: var(--accent-light); border-left: 3px solid var(--shadow); }
+.window-content::-webkit-scrollbar-thumb { background: var(--accent-dark); border: 3px solid var(--accent-light); }
 
 /* ====== VIDEO / GAME CARDS — ICON VIEW ====== */
 .cards-grid {
@@ -421,18 +405,6 @@ img { display: block; max-width: 100%; }
   line-height: 1.2;
 }
 
-.card-desc {
-  font-size: 0.75rem;
-  opacity: 0.7;
-  line-height: 1.3;
-}
-
-.card-role {
-  font-size: 0.72rem;
-  font-style: italic;
-  opacity: 0.6;
-}
-
 /* ====== CARDS — COLUMN VIEW (1-column, horizontal cards) ====== */
 .cards-column {
   display: grid;
@@ -446,7 +418,7 @@ img { display: block; max-width: 100%; }
 
 .cards-column .card .card-thumb {
   width: 40%;
-  height: 100px;
+  align-self: stretch;
   flex-shrink: 0;
   border-bottom: none;
   border-right: 3px solid var(--shadow);

@@ -59,21 +59,19 @@ async function loadData() {
 }
 
 /* ====== THEME FROM DATA ====== */
+const THEME_MAP = {
+  bg:'--bg', panelBg:'--panel-bg', accent:'--accent', accentLight:'--accent-light',
+  accentDark:'--accent-dark', accentPale:'--accent-pale', mapLand:'--map-land',
+  mapSea:'--map-sea', textDark:'--text-dark', textLight:'--text-light', shadow:'--shadow'
+};
+
 function applyTheme() {
   const t = state.data.theme;
   if (!t) return;
   const root = document.documentElement.style;
-  if (t.bg) root.setProperty('--bg', t.bg);
-  if (t.panelBg) root.setProperty('--panel-bg', t.panelBg);
-  if (t.accent) root.setProperty('--accent', t.accent);
-  if (t.accentLight) root.setProperty('--accent-light', t.accentLight);
-  if (t.accentDark) root.setProperty('--accent-dark', t.accentDark);
-  if (t.accentPale) root.setProperty('--accent-pale', t.accentPale);
-  if (t.mapLand) root.setProperty('--map-land', t.mapLand);
-  if (t.mapSea) root.setProperty('--map-sea', t.mapSea);
-  if (t.textDark) root.setProperty('--text-dark', t.textDark);
-  if (t.textLight) root.setProperty('--text-light', t.textLight);
-  if (t.shadow) root.setProperty('--shadow', t.shadow);
+  for (const [key, prop] of Object.entries(THEME_MAP)) {
+    if (t[key]) root.setProperty(prop, t[key]);
+  }
 }
 
 /* ====== HOME RENDERING ====== */

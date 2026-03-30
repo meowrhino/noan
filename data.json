@@ -1,4 +1,5 @@
 {
+  "_thumbnailSpec": "PNG, min 480x360 (4:3). Displayed via object-fit:cover — image is always centered and cropped to fill. Videos: 120x90 container. Games: 40% width, full card height. No transparency.",
   "theme": {
     "bg": "#c8c0a8",
     "panelBg": "#3d3532",
