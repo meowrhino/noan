@@ -169,6 +169,7 @@ function closeWindowById(id, withSound = true) {
   if (!win) return;
 
   win.classList.remove('open');
+  win.classList.add('closing');
   if (withSound) playSound('close');
 
   state.openWindows.delete(id);
@@ -177,9 +178,9 @@ function closeWindowById(id, withSound = true) {
 
   setTimeout(() => {
     win.hidden = true;
+    win.classList.remove('closing', 'dragged');
     win.style.left = '';
     win.style.top = '';
-    win.classList.remove('dragged');
   }, ANIM_MS);
 }
 
@@ -266,6 +267,7 @@ function closePlayerById(id, withSound = true) {
   if (vid) { vid.pause(); vid.removeAttribute('src'); vid.load(); }
 
   frame.classList.remove('open');
+  frame.classList.add('closing');
   if (withSound) playSound('close');
 
   state.openWindows.delete(id);

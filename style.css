@@ -204,7 +204,7 @@ img { display: block; max-width: 100%; }
   position: fixed;
   top: 50%;
   left: 50%;
-  transform: translate(-50%, -50%) scale(0.95);
+  transform: translate(-50%, -50%);
   width: 640px;
   height: 480px;
   background: var(--panel-bg);
@@ -214,7 +214,6 @@ img { display: block; max-width: 100%; }
   flex-direction: column;
   box-shadow: 6px 6px 0 var(--shadow);
   opacity: 0;
-  transition: opacity 0.15s, transform 0.15s;
   overflow: hidden;
 }
 
@@ -222,7 +221,21 @@ img { display: block; max-width: 100%; }
 
 .window-frame.open {
   opacity: 1;
-  transform: translate(-50%, -50%) scale(1);
+  animation: pop-in 0.15s ease-out;
+}
+
+@keyframes pop-in {
+  from { opacity: 0; scale: 0.95; }
+  to   { opacity: 1; scale: 1; }
+}
+
+.window-frame.closing {
+  animation: pop-out 0.15s ease-in forwards;
+}
+
+@keyframes pop-out {
+  from { opacity: 1; scale: 1; }
+  to   { opacity: 0; scale: 0.96; }
 }
 
 /* Titlebar: accent bar with title on left, controls on right */
@@ -638,10 +651,6 @@ img { display: block; max-width: 100%; }
     height: auto;
     transform: none;
     box-shadow: 4px 4px 0 var(--shadow);
-  }
-
-  .window-frame.open {
-    transform: none;
   }
 
   .cards-grid {
