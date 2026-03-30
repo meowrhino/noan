@@ -60,6 +60,7 @@ img { display: block; max-width: 100%; }
   padding: clamp(12px, 4vw, 40px);
   position: relative;
   z-index: 1;
+  pointer-events: none;
 }
 
 #home-panel {
@@ -73,6 +74,7 @@ img { display: block; max-width: 100%; }
   overflow: hidden;
   position: relative;
   z-index: 2;
+  pointer-events: auto;
 }
 
 #home-panel.hidden { display: none; }
@@ -99,8 +101,9 @@ img { display: block; max-width: 100%; }
   cursor: pointer;
   transition: transform 0.1s, box-shadow 0.1s, background 0.1s;
   transform: translate(-2px, -3px);
-  z-index: 2;
+  z-index: 99999;
   position: relative;
+  pointer-events: auto;
 }
 
 #reopen-btn:hover {
@@ -195,16 +198,6 @@ img { display: block; max-width: 100%; }
   line-height: 1.5;
   opacity: 0.8;
 }
-
-/* ====== WINDOW OVERLAY ====== */
-#window-overlay {
-  position: fixed;
-  inset: 0;
-  background: rgba(0, 0, 0, 0.45);
-  z-index: 90;
-}
-
-#window-overlay[hidden] { display: none; }
 
 /* ====== WINDOW SYSTEM ====== */
 .window-frame {
@@ -447,7 +440,8 @@ img { display: block; max-width: 100%; }
 }
 
 .cards-column .card .card-info {
-  width: 60%;
+  flex: 1;
+  min-width: 0;
   align-items: flex-start;
   text-align: left;
   justify-content: flex-start;
@@ -462,19 +456,48 @@ img { display: block; max-width: 100%; }
   margin-top: 2px;
 }
 
-/* ====== VIDEO PLAYER ====== */
-#window-player {
-  width: 800px;
-  height: 500px;
-  z-index: 110;
+.cards-column .card-role {
+  font-size: 0.68rem;
+  color: var(--text-light);
+  opacity: 0.5;
+  line-height: 1.2;
+  margin-top: 3px;
 }
 
-#player-content {
-  padding: 0;
+/* External link indicator strip */
+.card-external {
+  width: 36px;
+  flex-shrink: 0;
+  background: var(--accent-light);
+  border-left: 3px solid var(--shadow);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.card-external svg {
+  width: 16px;
+  height: 16px;
+  color: var(--text-dark);
+  opacity: 0.8;
+}
+
+.card:hover .card-external {
+  background: var(--accent-pale);
+}
+
+/* ====== VIDEO PLAYER ====== */
+.player-window {
+  width: 800px;
+  height: 500px;
+}
+
+.player-content {
+  padding: 0 !important;
   background: #000;
 }
 
-#player-content video {
+.player-content video {
   width: 100%;
   display: block;
   max-height: calc(500px - 42px);
@@ -553,6 +576,10 @@ img { display: block; max-width: 100%; }
 /* ====== RESPONSIVE ====== */
 
 /* Tablet-ish: compress slightly but keep horizontal layout */
+@media (max-width: 767px) {
+  .card-external { display: none; }
+}
+
 @media (max-width: 600px) {
   #home-body {
     gap: 12px;
@@ -621,7 +648,7 @@ img { display: block; max-width: 100%; }
     grid-template-columns: 1fr;
   }
 
-  #window-player {
+  .player-window {
     top: 12px;
     left: 12px;
     right: 12px;

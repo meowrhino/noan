@@ -1,8 +1,9 @@
 /* ====== STATE ====== */
 const state = {
   data: null,
-  activeWindow: null,
-  playerWindow: false,
+  openWindows: new Set(),
+  windowStack: [],       // ordered by focus, last = topmost
+  nextZIndex: 100,
   audioCtx: null,
   soundBuffers: {},   // preloaded MP3 buffers
   mapRendered: false,
@@ -27,16 +28,12 @@ function cacheDom() {
   dom.btnMap = document.getElementById('btn-map');
   dom.portraitImg = document.getElementById('portrait-img');
   dom.aboutBio = document.getElementById('about-bio');
-  dom.overlay = document.getElementById('window-overlay');
   dom.windowVideos = document.getElementById('window-videos');
   dom.windowGames = document.getElementById('window-games');
   dom.windowMap = document.getElementById('window-map');
-  dom.windowPlayer = document.getElementById('window-player');
   dom.videosContent = document.getElementById('videos-content');
   dom.gamesContent = document.getElementById('games-content');
   dom.mapContent = document.getElementById('map-content');
-  dom.playerContent = document.getElementById('player-content');
-  dom.playerTitle = document.getElementById('player-title');
 }
 
 /* ====== INIT ====== */
@@ -103,26 +100,61 @@ function openHome() {
   dom.homePanel.style.left = '';
   dom.homePanel.style.top = '';
   state.homeOpen = true;
+  bringHomeFront();
   playSound('open');
 }
 
 /* ====== WINDOW SYSTEM ====== */
 const ANIM_MS = 150;
 
+function bringToFront(id) {
+  const idx = state.windowStack.indexOf(id);
+  if (idx !== -1) state.windowStack.splice(idx, 1);
+  state.windowStack.push(id);
+  const win = document.getElementById(id);
+  if (win) {
+    win.style.zIndex = state.nextZIndex++;
+    // Track as last used window position
+    if (win.classList.contains('dragged')) {
+      lastWindowPos = { x: win.offsetLeft, y: win.offsetTop };
+    }
+  }
+}
+
+function bringHomeFront() {
+  dom.homePanel.style.zIndex = state.nextZIndex++;
+}
+
+const CASCADE_GAP = 30;
+let lastWindowPos = null; // {x, y} of last used window
+
+function getNextWindowPos(w, h) {
+  if (lastWindowPos) {
+    return { x: lastWindowPos.x + CASCADE_GAP, y: lastWindowPos.y + CASCADE_GAP };
+  }
+  return { x: (window.innerWidth - w) / 2, y: (window.innerHeight - h) / 2 };
+}
+
 function openWindow(id) {
   const win = document.getElementById(id);
   if (!win) return;
 
-  if (state.activeWindow && state.activeWindow !== id) {
-    closeWindow(false);
-  }
+  // Already open? Just bring to front
+  if (state.openWindows.has(id)) { bringToFront(id); return; }
 
-  dom.overlay.hidden = false;
+  // Position relative to last window, or centered
+  const pos = getNextWindowPos(win.offsetWidth || 640, win.offsetHeight || 480);
+  win.style.left = pos.x + 'px';
+  win.style.top = pos.y + 'px';
+  win.classList.add('dragged');
+  lastWindowPos = pos;
+
   win.hidden = false;
   void win.offsetHeight;
   win.classList.add('open');
 
-  state.activeWindow = id;
+  state.openWindows.add(id);
+  bringToFront(id);
 
   // Window-specific open sounds
   const openSounds = { 'window-videos': 'openVideos', 'window-games': 'openGames', 'window-map': 'openMap' };
@@ -133,11 +165,9 @@ function openWindow(id) {
   else if (id === 'window-map' && !state.mapRendered) { renderMap(); state.mapRendered = true; }
 }
 
-function closeWindow(withSound = true) {
-  if (state.playerWindow) { closePlayer(withSound); return; }
-
-  const id = state.activeWindow;
-  if (!id) return;
+function closeWindowById(id, withSound = true) {
+  if (!state.openWindows.has(id)) return;
+  if (id.startsWith('window-player-')) { closePlayerById(id, withSound); return; }
 
   const win = document.getElementById(id);
   if (!win) return;
@@ -145,25 +175,68 @@ function closeWindow(withSound = true) {
   win.classList.remove('open');
   if (withSound) playSound('close');
 
+  state.openWindows.delete(id);
+  const idx = state.windowStack.indexOf(id);
+  if (idx !== -1) state.windowStack.splice(idx, 1);
+
   setTimeout(() => {
     win.hidden = true;
-    dom.overlay.hidden = true;
-    // Reset drag position
     win.style.left = '';
     win.style.top = '';
     win.classList.remove('dragged');
   }, ANIM_MS);
+}
 
-  state.activeWindow = null;
+function closeTopWindow(withSound = true) {
+  if (state.windowStack.length === 0) return;
+  const topId = state.windowStack[state.windowStack.length - 1];
+  closeWindowById(topId, withSound);
+}
+
+let playerCounter = 0;
+
+function createPlayerWindow(video) {
+  const id = `window-player-${++playerCounter}`;
+
+  const frame = document.createElement('div');
+  frame.className = 'window-frame player-window';
+  frame.id = id;
+  frame.innerHTML = `
+    <div class="window-titlebar">
+      <span class="window-title">${video.title}</span>
+      <div class="titlebar-controls">
+        <button class="close-btn" aria-label="Close" title="Close">&times;</button>
+      </div>
+    </div>
+    <div class="window-content player-content"></div>
+  `;
+
+  document.body.appendChild(frame);
+
+  // Bind close button
+  frame.querySelector('.close-btn').addEventListener('click', (e) => {
+    e.stopPropagation();
+    closePlayerById(id, true);
+  });
+
+  // Bind focus on click
+  frame.addEventListener('mousedown', () => {
+    if (state.openWindows.has(id)) bringToFront(id);
+  });
+
+  // Make titlebar draggable
+  makeDraggable(frame.querySelector('.window-titlebar'), frame);
+
+  return { frame, id };
 }
 
 function openPlayer(videoId) {
   const video = state.data.videos.find(v => v.id === videoId);
   if (!video) return;
 
-  dom.playerTitle.textContent = video.title;
+  const { frame, id } = createPlayerWindow(video);
+  const content = frame.querySelector('.player-content');
 
-  dom.playerContent.innerHTML = '';
   const vid = document.createElement('video');
   vid.controls = true;
   vid.autoplay = true;
@@ -171,31 +244,41 @@ function openPlayer(videoId) {
   src.src = videoPath(video.id);
   src.type = 'video/webm';
   vid.appendChild(src);
-  dom.playerContent.appendChild(vid);
+  content.appendChild(vid);
 
-  dom.windowPlayer.hidden = false;
-  void dom.windowPlayer.offsetHeight;
-  dom.windowPlayer.classList.add('open');
-  state.playerWindow = true;
+  // Position relative to last window, or centered
+  const pos = getNextWindowPos(800, 500);
+  frame.style.left = pos.x + 'px';
+  frame.style.top = pos.y + 'px';
+  frame.classList.add('dragged');
+  lastWindowPos = pos;
+
+  frame.hidden = false;
+  void frame.offsetHeight;
+  frame.classList.add('open');
+
+  state.openWindows.add(id);
+  bringToFront(id);
   playSound('open');
 }
 
-function closePlayer(withSound = true) {
-  const vid = dom.playerContent.querySelector('video');
+function closePlayerById(id, withSound = true) {
+  const frame = document.getElementById(id);
+  if (!frame) return;
+
+  const vid = frame.querySelector('video');
   if (vid) { vid.pause(); vid.removeAttribute('src'); vid.load(); }
 
-  dom.windowPlayer.classList.remove('open');
+  frame.classList.remove('open');
   if (withSound) playSound('close');
 
-  setTimeout(() => {
-    dom.windowPlayer.hidden = true;
-    dom.playerContent.innerHTML = '';
-    dom.windowPlayer.style.left = '';
-    dom.windowPlayer.style.top = '';
-    dom.windowPlayer.classList.remove('dragged');
-  }, ANIM_MS);
+  state.openWindows.delete(id);
+  const idx = state.windowStack.indexOf(id);
+  if (idx !== -1) state.windowStack.splice(idx, 1);
 
-  state.playerWindow = false;
+  setTimeout(() => {
+    frame.remove();
+  }, ANIM_MS);
 }
 
 /* ====== VIDEOS (grid view) ====== */
@@ -224,85 +307,96 @@ function renderGames() {
       <div class="card-info">
         <span class="card-title">${g.title}</span>
         <span class="card-desc-gray">${g.description || ''}</span>
+        ${g.role ? `<span class="card-role">${g.role}</span>` : ''}
+      </div>
+      <div class="card-external" title="Opens in new tab">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>
+          <polyline points="15 3 21 3 21 9"/>
+          <line x1="10" y1="14" x2="21" y2="3"/>
+        </svg>
       </div>
     </div>
   `).join('')}</div>`;
 }
 
 /* ====== DRAGGABLE WINDOWS ====== */
+let _dragging = null;
+let _dragOffsetX = 0, _dragOffsetY = 0;
+
+function _startDrag(frame, clientX, clientY) {
+  _dragging = frame;
+  const rect = frame.getBoundingClientRect();
+  _dragOffsetX = clientX - rect.left;
+  _dragOffsetY = clientY - rect.top;
+  frame.classList.add('dragging');
+  if (frame.classList.contains('window-frame') && state.openWindows.has(frame.id)) {
+    bringToFront(frame.id);
+  }
+}
+
+function _moveDrag(clientX, clientY) {
+  if (!_dragging) return;
+  const x = clientX - _dragOffsetX;
+  const y = clientY - _dragOffsetY;
+
+  if (_dragging.id === 'home-panel' && _dragging.style.position !== 'fixed') {
+    _dragging.style.position = 'fixed';
+    _dragging.style.left = _dragging.getBoundingClientRect().left + 'px';
+    _dragging.style.top = _dragging.getBoundingClientRect().top + 'px';
+    _dragging.style.margin = '0';
+    _dragging.style.zIndex = '100';
+  }
+
+  _dragging.style.left = x + 'px';
+  _dragging.style.top = y + 'px';
+
+  if (_dragging.classList.contains('window-frame')) {
+    _dragging.classList.add('dragged');
+  }
+}
+
+function _endDrag() {
+  if (_dragging) {
+    // Update lastWindowPos if this was a window-frame
+    if (_dragging.classList.contains('window-frame')) {
+      lastWindowPos = { x: _dragging.offsetLeft, y: _dragging.offsetTop };
+    }
+    _dragging.classList.remove('dragging');
+    _dragging = null;
+  }
+}
+
+function makeDraggable(bar, frame) {
+  bar.addEventListener('mousedown', (e) => {
+    if (e.target.closest('button')) return;
+    _startDrag(frame, e.clientX, e.clientY);
+    e.preventDefault();
+  });
+  bar.addEventListener('touchstart', (e) => {
+    if (e.target.closest('button')) return;
+    const t = e.touches[0];
+    _startDrag(frame, t.clientX, t.clientY);
+  }, { passive: true });
+}
+
 function initDrag() {
-  const titlebars = document.querySelectorAll('.window-titlebar');
-  let dragging = null;
-  let offsetX = 0, offsetY = 0;
-
-  function startDrag(bar, clientX, clientY) {
-    if (!bar) return;
+  // Bind existing titlebars
+  document.querySelectorAll('.window-titlebar').forEach(bar => {
     const frame = bar.closest('.window-frame') || bar.closest('#home-panel');
-    if (!frame) return;
-
-    dragging = frame;
-    const rect = frame.getBoundingClientRect();
-    offsetX = clientX - rect.left;
-    offsetY = clientY - rect.top;
-    frame.classList.add('dragging');
-  }
-
-  function moveDrag(clientX, clientY) {
-    if (!dragging) return;
-
-    const x = clientX - offsetX;
-    const y = clientY - offsetY;
-
-    // For home-panel, switch to fixed positioning on first drag
-    if (dragging.id === 'home-panel' && dragging.style.position !== 'fixed') {
-      dragging.style.position = 'fixed';
-      dragging.style.left = dragging.getBoundingClientRect().left + 'px';
-      dragging.style.top = dragging.getBoundingClientRect().top + 'px';
-      dragging.style.margin = '0';
-      dragging.style.zIndex = '100';
-    }
-
-    dragging.style.left = x + 'px';
-    dragging.style.top = y + 'px';
-
-    if (dragging.classList.contains('window-frame')) {
-      dragging.classList.add('dragged');
-    }
-  }
-
-  function endDrag() {
-    if (dragging) {
-      dragging.classList.remove('dragging');
-      dragging = null;
-    }
-  }
-
-  // Mouse events
-  titlebars.forEach(bar => {
-    bar.addEventListener('mousedown', (e) => {
-      if (e.target.closest('button')) return;
-      startDrag(bar, e.clientX, e.clientY);
-      e.preventDefault();
-    });
+    if (frame) makeDraggable(bar, frame);
   });
-  document.addEventListener('mousemove', (e) => moveDrag(e.clientX, e.clientY));
-  document.addEventListener('mouseup', endDrag);
 
-  // Touch events
-  titlebars.forEach(bar => {
-    bar.addEventListener('touchstart', (e) => {
-      if (e.target.closest('button')) return;
-      const t = e.touches[0];
-      startDrag(bar, t.clientX, t.clientY);
-    }, { passive: true });
-  });
+  // Global move/end listeners (only need once)
+  document.addEventListener('mousemove', (e) => _moveDrag(e.clientX, e.clientY));
+  document.addEventListener('mouseup', _endDrag);
   document.addEventListener('touchmove', (e) => {
-    if (!dragging) return;
+    if (!_dragging) return;
     e.preventDefault();
     const t = e.touches[0];
-    moveDrag(t.clientX, t.clientY);
+    _moveDrag(t.clientX, t.clientY);
   }, { passive: false });
-  document.addEventListener('touchend', endDrag);
+  document.addEventListener('touchend', _endDrag);
 }
 
 /* ====== MAP ====== */
@@ -463,9 +557,20 @@ function bindEvents() {
     btn.addEventListener('click', (e) => {
       e.stopPropagation();
       const frame = btn.closest('.window-frame');
-      if (frame.id === 'window-player') closePlayer(true);
-      else closeWindow(true);
+      closeWindowById(frame.id, true);
     });
+  });
+
+  // Click on window frame brings it to front
+  document.querySelectorAll('.window-frame').forEach(frame => {
+    frame.addEventListener('mousedown', () => {
+      if (state.openWindows.has(frame.id)) bringToFront(frame.id);
+    });
+  });
+
+  // Home panel: click to bring to front (but not when clicking nav buttons)
+  dom.homePanel.addEventListener('mousedown', (e) => {
+    if (!e.target.closest('.nav-btn')) bringHomeFront();
   });
 
   // Close home panel
@@ -479,15 +584,9 @@ function bindEvents() {
     openHome();
   });
 
-  // Overlay closes window
-  dom.overlay.addEventListener('click', () => closeWindow(true));
-
-  // Escape key
+  // Escape key closes topmost window
   document.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape') {
-      if (state.playerWindow) closePlayer(true);
-      else if (state.activeWindow) closeWindow(true);
-    }
+    if (e.key === 'Escape') closeTopWindow(true);
   });
 
   // Event delegation for video cards
