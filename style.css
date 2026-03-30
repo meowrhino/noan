@@ -16,8 +16,8 @@
   --btn-size:        clamp(52px, 8vw, 80px);
   /* --font-hand:    'Patrick Hand', cursive; */
   /* --font-body:    'Patrick Hand', system-ui, sans-serif; */
-  --font-hand:       'Noto Sans Pahawh Hmong', system-ui, sans-serif;
-  --font-body:       'Noto Sans Pahawh Hmong', system-ui, sans-serif;
+  --font-hand:       'Lexend', system-ui, sans-serif;
+  --font-body:       'Lexend', system-ui, sans-serif;
 }
 
 html, body {
@@ -28,23 +28,24 @@ html, body {
   overflow: hidden;
 }
 
-/* Animated dot pattern background */
+/* Animated diamond pattern background */
 body::before {
   content: '';
   position: fixed;
-  inset: 0;
-  opacity: 0.8;
-  background-image: radial-gradient(var(--accent-dark) 3px, transparent 3px),
-                     radial-gradient(var(--accent-dark) 3px, var(--bg) 3px);
-  background-size: 78px 78px;
-  animation: dotMove 30s linear infinite;
+  inset: -50%;
+  width: 200%;
+  height: 200%;
+  opacity: 0.55;
+  background: repeating-conic-gradient(var(--accent-dark) 0% 25%, var(--bg) 0% 50%) 0 0 / 80px 80px;
+  transform: rotate(45deg);
+  animation: bgMove 30s linear infinite;
   z-index: 0;
   pointer-events: none;
 }
 
-@keyframes dotMove {
-  from { background-position: 0 0, 39px 39px; }
-  to   { background-position: 234px 78px, 273px 117px; }
+@keyframes bgMove {
+  from { background-position: 0 0; }
+  to   { background-position: 320px 0; }
 }
 
 button { font-family: inherit; cursor: pointer; border: none; background: none; }
@@ -87,7 +88,7 @@ img { display: block; max-width: 100%; }
 #reopen-btn {
   font-family: var(--font-hand);
   font-size: clamp(1.8rem, 4vw, 2.8rem);
-  font-weight: 900;
+  font-weight: 400;
   letter-spacing: 0.15em;
   text-transform: lowercase;
   color: var(--text-dark);
