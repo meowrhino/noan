@@ -140,15 +140,12 @@ function openWindow(id) {
   // Already open? Just bring to front
   if (state.openWindows.has(id)) { bringToFront(id); return; }
 
-  // Position relative to last window, or centered (skip on mobile — CSS handles it)
-  const isMobile = window.matchMedia('(max-width: 480px)').matches;
-  if (!isMobile) {
-    const pos = getNextWindowPos(win.offsetWidth || 640, win.offsetHeight || 480);
-    win.style.left = pos.x + 'px';
-    win.style.top = pos.y + 'px';
-    win.classList.add('dragged');
-    lastWindowPos = pos;
-  }
+  // Position relative to last window, or centered
+  const pos = getNextWindowPos(win.offsetWidth || 640, win.offsetHeight || 480);
+  win.style.left = pos.x + 'px';
+  win.style.top = pos.y + 'px';
+  win.classList.add('dragged');
+  lastWindowPos = pos;
 
   win.hidden = false;
   void win.offsetHeight;
@@ -244,15 +241,12 @@ function openPlayer(videoId) {
   vid.appendChild(src);
   content.appendChild(vid);
 
-  // Position relative to last window, or centered (skip on mobile — CSS handles it)
-  const isMobile = window.matchMedia('(max-width: 480px)').matches;
-  if (!isMobile) {
-    const pos = getNextWindowPos(800, 500);
-    frame.style.left = pos.x + 'px';
-    frame.style.top = pos.y + 'px';
-    frame.classList.add('dragged');
-    lastWindowPos = pos;
-  }
+  // Position relative to last window, or centered
+  const pos = getNextWindowPos(800, 500);
+  frame.style.left = pos.x + 'px';
+  frame.style.top = pos.y + 'px';
+  frame.classList.add('dragged');
+  lastWindowPos = pos;
 
   frame.hidden = false;
   void frame.offsetHeight;
@@ -396,17 +390,6 @@ function initDrag() {
   document.querySelectorAll('.window-titlebar').forEach(bar => {
     const frame = bar.closest('.window-frame') || bar.closest('#home-panel');
     if (frame) makeDraggable(bar, frame);
-  });
-
-  // Reset dragged windows when entering mobile layout
-  window.matchMedia('(max-width: 480px)').addEventListener('change', (e) => {
-    if (e.matches) {
-      document.querySelectorAll('.window-frame.dragged').forEach(f => {
-        f.style.left = '';
-        f.style.top = '';
-        f.classList.remove('dragged');
-      });
-    }
   });
 
   // Global move/end listeners (only need once)
@@ -616,9 +599,7 @@ function bindEvents() {
     playSound('click');
     const game = state.data.games.find(g => g.id === card.dataset.gameId);
     if (game && game.itchUrl) {
-      const isMobile = window.innerWidth < 768;
-      if (isMobile) window.location.href = game.itchUrl;
-      else window.open(game.itchUrl, '_blank', 'noopener,noreferrer');
+      window.open(game.itchUrl, '_blank', 'noopener,noreferrer');
     }
   });
 
