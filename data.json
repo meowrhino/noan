@@ -64,16 +64,18 @@
     }
   ],
   "soundEffects": {
-    "clickVideos": "assets/sounds/click.mp3",
-    "clickGames": "assets/sounds/click.mp3",
-    "clickMap": "assets/sounds/click.mp3",
-    "openVideos": "assets/sounds/open.mp3",
-    "openGames": "assets/sounds/open.mp3",
-    "openMap": "assets/sounds/open.mp3",
-    "close": "assets/sounds/close.mp3",
-    "hover": "assets/sounds/hover.mp3",
-    "click": "assets/sounds/click.mp3",
-    "open": "assets/sounds/open.mp3"
+    "openVideos": "assets/sounds/open-videos.mp3",
+    "openGames": "assets/sounds/open-games.mp3",
+    "openMap": "assets/sounds/open-map.mp3",
+    "closeVideos": "assets/sounds/close-videos.mp3",
+    "closeGames": "assets/sounds/close-games.mp3",
+    "closeMap": "assets/sounds/close-map.mp3",
+    "hoverVideos": "assets/sounds/hover-videos.mp3",
+    "hoverGames": "assets/sounds/hover-games.mp3",
+    "hoverMap": "assets/sounds/hover-map.mp3",
+    "hoverPin": "assets/sounds/hover-pin.mp3",
+    "click": "assets/sounds/change-view.mp3",
+    "changeView": "assets/sounds/change-view.mp3"
   },
   "social": [
     { "id": "instagram",  "label": "Instagram",  "url": "https://www.instagram.com/nooanishere/",                "icon": "instagram",  "mapX": 28, "mapY": 55 },
