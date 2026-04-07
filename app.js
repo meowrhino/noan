@@ -323,6 +323,9 @@ function renderVideos() {
     const clone = tpl.content.cloneNode(true);
     const card = clone.querySelector('.card');
     card.dataset.videoId = v.id;
+    card.setAttribute('role', 'button');
+    card.setAttribute('tabindex', '0');
+    card.setAttribute('aria-label', `Watch: ${v.title}`);
     const img = clone.querySelector('img');
     img.src = thumbPath(v.id);
     img.alt = v.title;
@@ -348,6 +351,9 @@ function renderGames() {
     const clone = tpl.content.cloneNode(true);
     const card = clone.querySelector('.card');
     card.dataset.gameId = g.id;
+    card.setAttribute('role', 'button');
+    card.setAttribute('tabindex', '0');
+    card.setAttribute('aria-label', `Open: ${g.title}`);
     const img = clone.querySelector('img');
     img.src = thumbPath(g.id);
     img.alt = g.title;
@@ -627,16 +633,20 @@ function bindEvents() {
     if (e.key === 'Escape') closeTopWindow(true);
   });
 
-  // Event delegation for video cards
-  dom.videosContent.addEventListener('click', (e) => {
+  // Event delegation for video cards (click + keyboard)
+  function handleVideoCard(e) {
     const card = e.target.closest('[data-video-id]');
     if (!card) return;
     playSound('changeView');
     openPlayer(card.dataset.videoId);
+  }
+  dom.videosContent.addEventListener('click', handleVideoCard);
+  dom.videosContent.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); handleVideoCard(e); }
   });
 
-  // Event delegation for game cards
-  dom.gamesContent.addEventListener('click', (e) => {
+  // Event delegation for game cards (click + keyboard)
+  function handleGameCard(e) {
     const card = e.target.closest('[data-game-id]');
     if (!card) return;
     playSound('changeView');
@@ -644,6 +654,10 @@ function bindEvents() {
     if (game && game.itchUrl) {
       window.open(game.itchUrl, '_blank', 'noopener,noreferrer');
     }
+  }
+  dom.gamesContent.addEventListener('click', handleGameCard);
+  dom.gamesContent.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); handleGameCard(e); }
   });
 
   // Hover sounds on map pins (delegated via capture)

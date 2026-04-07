@@ -401,9 +401,12 @@ img { display: block; max-width: 100%; }
   box-shadow: 3px 3px 0 var(--shadow);
 }
 
-.card:hover {
+.card:hover,
+.card:focus-visible {
   transform: translate(-1px, -2px);
   box-shadow: 5px 5px 0 var(--shadow);
+  outline: 2px solid var(--text-dark);
+  outline-offset: 2px;
 }
 
 .card:active {
