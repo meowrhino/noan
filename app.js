@@ -55,6 +55,7 @@ async function loadData() {
     state.data = await res.json();
   } catch (e) {
     console.error('Failed to load data.json', e);
+    document.body.innerHTML = '<p style="padding:2rem;text-align:center;font-family:system-ui;color:#3d3532">Failed to load. Please refresh.</p>';
   }
 }
 
@@ -193,36 +194,31 @@ let playerCounter = 0;
 function createPlayerWindow(video) {
   const id = `window-player-${++playerCounter}`;
 
-  const frame = document.createElement('div');
-  frame.className = 'window-frame player-window';
+  const tpl = document.getElementById('tpl-player-window');
+  const clone = tpl.content.cloneNode(true);
+  const frame = clone.querySelector('.window-frame');
   frame.id = id;
-  frame.innerHTML = `
-    <div class="window-titlebar">
-      <span class="window-title">${video.title}</span>
-      <div class="titlebar-controls">
-        <button class="close-btn" aria-label="Close" title="Close">&times;</button>
-      </div>
-    </div>
-    <div class="window-content player-content"></div>
-  `;
+  frame.querySelector('.window-title').textContent = video.title;
 
-  document.body.appendChild(frame);
+  document.body.appendChild(clone);
+  // Re-query from DOM since clone fragment is emptied after append
+  const attached = document.getElementById(id);
 
   // Bind close button
-  frame.querySelector('.close-btn').addEventListener('click', (e) => {
+  attached.querySelector('.close-btn').addEventListener('click', (e) => {
     e.stopPropagation();
     closePlayerById(id, true);
   });
 
   // Bind focus on click
-  frame.addEventListener('mousedown', () => {
+  attached.addEventListener('mousedown', () => {
     if (state.openWindows.has(id)) bringToFront(id);
   });
 
   // Make titlebar draggable
-  makeDraggable(frame.querySelector('.window-titlebar'), frame);
+  makeDraggable(attached.querySelector('.window-titlebar'), attached);
 
-  return { frame, id };
+  return { frame: attached, id };
 }
 
 function openPlayer(videoId) {
@@ -279,41 +275,50 @@ function closePlayerById(id, withSound = true) {
 
 /* ====== VIDEOS (grid view) ====== */
 function renderVideos() {
-  const vids = state.data.videos;
-  dom.videosContent.innerHTML = `<div class="cards-grid">${vids.map(v => `
-    <div class="card card-video" data-video-id="${v.id}">
-      <div class="card-thumb">
-        <img src="${thumbPath(v.id)}" alt="${v.title}" loading="lazy" onerror="this.style.display='none'">
-      </div>
-      <div class="card-info">
-        <span class="card-title">${v.title}</span>
-      </div>
-    </div>
-  `).join('')}</div>`;
+  const tpl = document.getElementById('tpl-video-card');
+  const grid = document.createElement('div');
+  grid.className = 'cards-grid';
+
+  state.data.videos.forEach(v => {
+    const clone = tpl.content.cloneNode(true);
+    const card = clone.querySelector('.card');
+    card.dataset.videoId = v.id;
+    const img = clone.querySelector('img');
+    img.src = thumbPath(v.id);
+    img.alt = v.title;
+    img.addEventListener('error', () => { img.style.display = 'none'; });
+    clone.querySelector('.card-title').textContent = v.title;
+    grid.appendChild(clone);
+  });
+
+  dom.videosContent.innerHTML = '';
+  dom.videosContent.appendChild(grid);
 }
 
 /* ====== GAMES (column view) ====== */
 function renderGames() {
-  const games = state.data.games;
-  dom.gamesContent.innerHTML = `<div class="cards-column">${games.map(g => `
-    <div class="card card-game" data-game-id="${g.id}">
-      <div class="card-thumb">
-        <img src="${thumbPath(g.id)}" alt="${g.title}" loading="lazy" onerror="this.style.display='none'">
-      </div>
-      <div class="card-info">
-        <span class="card-title">${g.title}</span>
-        <span class="card-desc-gray">${g.description || ''}</span>
-        ${g.role ? `<span class="card-role">${g.role}</span>` : ''}
-      </div>
-      <div class="card-external" title="Opens in new tab">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>
-          <polyline points="15 3 21 3 21 9"/>
-          <line x1="10" y1="14" x2="21" y2="3"/>
-        </svg>
-      </div>
-    </div>
-  `).join('')}</div>`;
+  const tpl = document.getElementById('tpl-game-card');
+  const column = document.createElement('div');
+  column.className = 'cards-column';
+
+  state.data.games.forEach(g => {
+    const clone = tpl.content.cloneNode(true);
+    const card = clone.querySelector('.card');
+    card.dataset.gameId = g.id;
+    const img = clone.querySelector('img');
+    img.src = thumbPath(g.id);
+    img.alt = g.title;
+    img.addEventListener('error', () => { img.style.display = 'none'; });
+    clone.querySelector('.card-title').textContent = g.title;
+    clone.querySelector('.card-desc-gray').textContent = g.description || '';
+    const role = clone.querySelector('.card-role');
+    if (g.role) role.textContent = g.role;
+    else role.remove();
+    column.appendChild(clone);
+  });
+
+  dom.gamesContent.innerHTML = '';
+  dom.gamesContent.appendChild(column);
 }
 
 /* ====== DRAGGABLE WINDOWS ====== */
@@ -383,6 +388,17 @@ function initDrag() {
     if (frame) makeDraggable(bar, frame);
   });
 
+  // Reset dragged windows when entering mobile layout
+  window.matchMedia('(max-width: 480px)').addEventListener('change', (e) => {
+    if (e.matches) {
+      document.querySelectorAll('.window-frame.dragged').forEach(f => {
+        f.style.left = '';
+        f.style.top = '';
+        f.classList.remove('dragged');
+      });
+    }
+  });
+
   // Global move/end listeners (only need once)
   document.addEventListener('mousemove', (e) => _moveDrag(e.clientX, e.clientY));
   document.addEventListener('mouseup', _endDrag);
@@ -397,59 +413,29 @@ function initDrag() {
 
 /* ====== MAP ====== */
 function renderMap() {
-  const social = state.data.social;
-  const land = getVar('--map-land');
-  const sea = getVar('--map-sea');
-
-  const mapSvg = `
-    <svg viewBox="0 0 600 450" xmlns="http://www.w3.org/2000/svg">
-      <rect width="600" height="450" fill="${sea}"/>
-      <path d="M8 12 Q15 8 20 14 L25 10 Q35 6 40 12 L590 10 Q596 15 592 20 L594 430 Q590 440 580 438 L20 442 Q10 440 12 430 Z" fill="${sea}" stroke="#b8b0a0" stroke-width="1.5"/>
-      <path d="M80 80 Q120 50 180 70 Q200 40 240 60 Q260 50 280 70 Q290 90 270 110 Q300 130 280 160 Q260 180 220 170 Q200 200 160 180 Q130 190 110 160 Q80 150 70 120 Q60 100 80 80Z" fill="${land}" opacity="0.85"/>
-      <path d="M320 100 Q370 60 430 80 Q470 70 500 100 Q530 120 520 160 Q540 200 510 230 Q480 250 440 240 Q400 260 360 230 Q330 210 340 170 Q310 140 320 100Z" fill="${land}" opacity="0.75"/>
-      <path d="M150 260 Q200 230 260 250 Q300 240 340 270 Q370 300 350 340 Q330 370 280 360 Q240 380 200 350 Q160 340 150 300 Q140 280 150 260Z" fill="${land}" opacity="0.8"/>
-      <path d="M420 280 Q460 260 500 280 Q530 300 520 340 Q510 370 470 370 Q440 380 420 350 Q400 320 420 280Z" fill="${land}" opacity="0.7"/>
-      <ellipse cx="100" cy="230" rx="25" ry="18" fill="${land}" opacity="0.6"/>
-      <ellipse cx="480" cy="200" rx="20" ry="14" fill="${land}" opacity="0.55"/>
-      <ellipse cx="300" cy="400" rx="30" ry="15" fill="${land}" opacity="0.5"/>
-      <line x1="550" y1="30" x2="550" y2="70" stroke="#b8b0a0" stroke-width="1" opacity="0.4"/>
-      <line x1="530" y1="50" x2="570" y2="50" stroke="#b8b0a0" stroke-width="1" opacity="0.4"/>
-      <text x="550" y="25" text-anchor="middle" fill="#b8b0a0" font-size="10" opacity="0.5">N</text>
-    </svg>
-  `;
-
-  dom.mapContent.innerHTML = `<div class="map-container">${mapSvg}</div>`;
-
+  const tpl = document.getElementById('tpl-map-pin');
   const container = dom.mapContent.querySelector('.map-container');
-  social.forEach(s => {
-    const pin = document.createElement('a');
+
+  state.data.social.forEach(s => {
+    const clone = tpl.content.cloneNode(true);
+    const pin = clone.querySelector('.map-pin');
     pin.href = s.url;
-    pin.target = '_blank';
-    pin.rel = 'noopener noreferrer';
-    pin.className = 'map-pin';
     pin.setAttribute('aria-label', s.label);
     pin.style.left = s.mapX + '%';
     pin.style.top = s.mapY + '%';
-    pin.innerHTML = socialIcon(s.icon) + `<span class="map-pin-label">${s.label}</span>`;
-    container.appendChild(pin);
+
+    // Insert icon from SVG sprite
+    const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+    const use = document.createElementNS('http://www.w3.org/2000/svg', 'use');
+    use.setAttributeNS('http://www.w3.org/1999/xlink', 'href', `#icon-${s.icon}`);
+    svg.appendChild(use);
+    pin.insertBefore(svg, pin.firstChild);
+
+    clone.querySelector('.map-pin-label').textContent = s.label;
+    container.appendChild(clone);
   });
 }
 
-function getVar(name) {
-  return getComputedStyle(document.documentElement).getPropertyValue(name).trim();
-}
-
-function socialIcon(type) {
-  const icons = {
-    instagram: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5"/><circle cx="12" cy="12" r="5"/><circle cx="17.5" cy="6.5" r="1.5" fill="currentColor" stroke="none"/></svg>`,
-    linkedin: `<svg viewBox="0 0 24 24" fill="currentColor"><path d="M4.98 3.5C4.98 4.88 3.87 6 2.5 6S0 4.88 0 3.5 1.12 1 2.5 1s2.48 1.12 2.48 2.5zM.5 8h4V24h-4V8zm7.5 0h3.8v2.2h.05c.53-1 1.83-2.2 3.77-2.2 4.03 0 4.78 2.65 4.78 6.1V24h-4v-8.7c0-2.08-.04-4.75-2.9-4.75-2.9 0-3.35 2.27-3.35 4.6V24H8V8z"/></svg>`,
-    itch: `<svg viewBox="0 0 24 24" fill="currentColor"><path d="M3.13 1.34C2.08 2.04 1 3.89 1 5.02v1.09c0 1.37.71 2.56 1.82 2.98.08.03.16.05.24.07.93.23 1.82-.2 2.39-.82.56.62 1.35 1.05 2.26 1.05.9 0 1.67-.41 2.23-1.02.56.6 1.33 1.02 2.23 1.02.9 0 1.7-.43 2.26-1.05.57.62 1.46 1.05 2.39.82.08-.02.16-.04.24-.07C18.29 8.67 19 7.48 19 6.11V5.02c0-1.13-1.08-2.98-2.13-3.68C15.73.64 12.1.5 10 .5S4.27.64 3.13 1.34zM10 10.8c-.43.5-1.05.83-1.74.83-.54 0-1.08-.2-1.51-.58-.43.38-.97.58-1.5.58-.78 0-1.48-.39-1.93-.99C2.6 12.72 1 16.86 1 18.58 1 21.76 4.42 23.5 10 23.5s9-1.74 9-4.92c0-1.72-1.6-5.86-2.32-7.94-.45.6-1.15.99-1.93.99-.53 0-1.07-.2-1.5-.58-.43.38-.97.58-1.51.58-.69 0-1.31-.33-1.74-.83z"/></svg>`,
-    soundcloud: `<svg viewBox="0 0 24 24" fill="currentColor"><path d="M1 18V13h1v5H1zm2.5-6.5V18H5v-6.5H3.5zM6 10v8h1.5v-8H6zm2.5-1v9H10v-9H8.5zM11 7v11h1.5V7H11zm3 0c2.5 0 4.5 1.8 4.9 4.1.4-.1.7-.1 1.1-.1 2.2 0 4 1.8 4 4s-1.8 4-4 4h-6V7z"/></svg>`,
-    discord: `<svg viewBox="0 0 24 24" fill="currentColor"><path d="M20.32 4.37a19.8 19.8 0 0 0-4.89-1.52.07.07 0 0 0-.08.04c-.21.38-.44.87-.61 1.25a18.27 18.27 0 0 0-5.49 0 12.64 12.64 0 0 0-.62-1.25.08.08 0 0 0-.08-.04 19.74 19.74 0 0 0-4.89 1.52.07.07 0 0 0-.03.03C1.02 8.93.34 13.35.7 17.72a.08.08 0 0 0 .03.06 19.9 19.9 0 0 0 5.99 3.03.08.08 0 0 0 .08-.03c.46-.63.87-1.3 1.22-2a.08.08 0 0 0-.04-.11 13.1 13.1 0 0 1-1.87-.9.08.08 0 0 1-.01-.13c.13-.09.25-.19.37-.29a.07.07 0 0 1 .08-.01c3.93 1.79 8.18 1.79 12.07 0a.07.07 0 0 1 .08.01c.12.1.25.2.37.29a.08.08 0 0 1 0 .13c-.6.35-1.22.65-1.87.9a.08.08 0 0 0-.04.1c.36.7.77 1.37 1.22 2a.08.08 0 0 0 .08.03 19.83 19.83 0 0 0 6-3.03.08.08 0 0 0 .03-.05c.42-4.37-.71-8.75-2.98-13.36a.06.06 0 0 0-.03-.03zM8.02 15.33c-1.15 0-2.1-1.06-2.1-2.36s.93-2.36 2.1-2.36c1.18 0 2.12 1.07 2.1 2.36 0 1.3-.93 2.36-2.1 2.36zm7.77 0c-1.15 0-2.1-1.06-2.1-2.36s.93-2.36 2.1-2.36c1.18 0 2.12 1.07 2.1 2.36 0 1.3-.92 2.36-2.1 2.36z"/></svg>`,
-    email: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M22 4L12 13 2 4"/></svg>`,
-  };
-  return icons[type] || '';
-}
 
 /* ====== SOUND EFFECTS ====== */
 function initAudio() {
@@ -483,10 +469,12 @@ function playSound(type) {
 
   // Use MP3 if available
   if (state.soundBuffers[type]) {
-    const source = ctx.createBufferSource();
-    source.buffer = state.soundBuffers[type];
-    source.connect(ctx.destination);
-    source.start();
+    try {
+      const source = ctx.createBufferSource();
+      source.buffer = state.soundBuffers[type];
+      source.connect(ctx.destination);
+      source.start();
+    } catch (e) { /* audio context suspended or unavailable */ }
     return;
   }
 
