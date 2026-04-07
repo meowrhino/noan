@@ -41,7 +41,9 @@
       "Bash(rm -f fmod-test-project.png strange-realm.webp)",
       "Bash(git reset:*)",
       "Bash(git restore:*)",
-      "Bash(git rm:*)"
+      "Bash(git rm:*)",
+      "Bash(python3 -c \"import json; f=open\\(''/Users/manu/Documents/GitHub/noan/data.json''\\); d=json.load\\(f\\); print\\(''JSON valid''\\)\")",
+      "Bash(command -v python3)"
     ]
   }
 }
