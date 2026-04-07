@@ -11,9 +11,19 @@ const state = {
   homeOpen: true,
 };
 
-/* ====== ASSET PATHS (derived from id) ====== */
-function thumbPath(id) { return `assets/thumbnails/${id}.png`; }
-function videoPath(id) { return `assets/videos/${id}.webm`; }
+/* ====== ASSET PATHS (derived from id, dirs from data.json) ====== */
+function thumbPath(id) {
+  const dir = state.data?.assets?.thumbnailDir || 'assets/thumbnails';
+  return `${dir}/${id}.png`;
+}
+function videoPath(id) {
+  const dir = state.data?.assets?.videoDir || 'assets/videos';
+  return `${dir}/${id}.webm`;
+}
+function mapIconPath(icon) {
+  const dir = state.data?.assets?.mapIconDir || 'assets/icons/map';
+  return `${dir}/${icon}.png`;
+}
 
 /* ====== DOM REFS ====== */
 const dom = {};
@@ -84,6 +94,25 @@ function renderHome() {
   dom.portraitImg.src = d.about.portrait;
   dom.portraitImg.alt = d.about.name;
   dom.aboutBio.textContent = d.about.bio;
+
+  // Set nav button icons from data.json
+  const nav = d.assets?.navButtons;
+  if (nav) {
+    const btns = { videos: dom.btnVideos, games: dom.btnGames, map: dom.btnMap };
+    for (const [key, el] of Object.entries(btns)) {
+      if (!nav[key] || !el) continue;
+      const icon = el.querySelector('.btn-icon');
+      const iconHover = el.querySelector('.btn-icon-hover');
+      if (icon) icon.src = nav[key].icon;
+      if (iconHover) iconHover.src = nav[key].iconHover;
+    }
+  }
+
+  // Set map background from data.json
+  if (d.assets?.mapBackground) {
+    const mapBg = document.querySelector('.map-bg');
+    if (mapBg) mapBg.src = d.assets.mapBackground;
+  }
 }
 
 /* ====== HOME PANEL OPEN/CLOSE ====== */
@@ -91,7 +120,7 @@ function closeHome() {
   dom.homePanel.classList.add('hidden');
   dom.reopenBtn.hidden = false;
   state.homeOpen = false;
-  playSound('close');
+  playSound('closeHome');
 }
 
 function openHome() {
@@ -104,7 +133,7 @@ function openHome() {
   dom.homePanel.classList.remove('dragged');
   state.homeOpen = true;
   bringHomeFront();
-  playSound('open');
+  playSound('openHome');
 }
 
 /* ====== WINDOW SYSTEM ====== */
@@ -156,7 +185,7 @@ function openWindow(id) {
 
   // Window-specific open sounds
   const openSounds = { 'window-videos': 'openVideos', 'window-games': 'openGames', 'window-map': 'openMap' };
-  playSound(openSounds[id] || 'open');
+  playSound(openSounds[id]);
 
   if (id === 'window-videos') renderVideos();
   else if (id === 'window-games') renderGames();
@@ -173,7 +202,7 @@ function closeWindowById(id, withSound = true) {
   win.classList.remove('open');
   win.classList.add('closing');
   const closeSounds = { 'window-videos': 'closeVideos', 'window-games': 'closeGames', 'window-map': 'closeMap' };
-  if (withSound) playSound(closeSounds[id] || 'close');
+  if (withSound) playSound(closeSounds[id]);
 
   state.openWindows.delete(id);
   const idx = state.windowStack.indexOf(id);
@@ -235,6 +264,13 @@ function openPlayer(videoId) {
   const vid = document.createElement('video');
   vid.controls = true;
   vid.autoplay = true;
+  vid.addEventListener('error', () => {
+    vid.style.display = 'none';
+    const msg = document.createElement('p');
+    msg.className = 'player-error';
+    msg.textContent = 'Video not available';
+    content.appendChild(msg);
+  });
   const src = document.createElement('source');
   src.src = videoPath(video.id);
   src.type = 'video/webm';
@@ -254,7 +290,7 @@ function openPlayer(videoId) {
 
   state.openWindows.add(id);
   bringToFront(id);
-  playSound('open');
+  playSound('openPlayer');
 }
 
 function closePlayerById(id, withSound = true) {
@@ -266,7 +302,7 @@ function closePlayerById(id, withSound = true) {
 
   frame.classList.remove('open');
   frame.classList.add('closing');
-  if (withSound) playSound('close');
+  if (withSound) playSound('closePlayer');
 
   state.openWindows.delete(id);
   const idx = state.windowStack.indexOf(id);
@@ -290,7 +326,10 @@ function renderVideos() {
     const img = clone.querySelector('img');
     img.src = thumbPath(v.id);
     img.alt = v.title;
-    img.addEventListener('error', () => { img.style.display = 'none'; });
+    img.addEventListener('error', () => {
+      img.style.display = 'none';
+      card.classList.add('thumb-error');
+    });
     clone.querySelector('.card-title').textContent = v.title;
     grid.appendChild(clone);
   });
@@ -312,7 +351,10 @@ function renderGames() {
     const img = clone.querySelector('img');
     img.src = thumbPath(g.id);
     img.alt = g.title;
-    img.addEventListener('error', () => { img.style.display = 'none'; });
+    img.addEventListener('error', () => {
+      img.style.display = 'none';
+      card.classList.add('thumb-error');
+    });
     clone.querySelector('.card-title').textContent = g.title;
     clone.querySelector('.card-desc-gray').textContent = g.description || '';
     const role = clone.querySelector('.card-role');
@@ -350,7 +392,7 @@ function _moveDrag(clientX, clientY) {
     _dragging.style.left = _dragging.getBoundingClientRect().left + 'px';
     _dragging.style.top = _dragging.getBoundingClientRect().top + 'px';
     _dragging.style.margin = '0';
-    _dragging.style.zIndex = '100';
+    _dragging.style.zIndex = state.nextZIndex++;
   }
 
   _dragging.style.left = x + 'px';
@@ -419,8 +461,9 @@ function renderMap() {
 
     // Insert icon from PNG
     const img = document.createElement('img');
-    img.src = `assets/icons/map/${s.icon}.png`;
+    img.src = mapIconPath(s.icon);
     img.alt = s.label;
+    img.addEventListener('error', () => { img.style.display = 'none'; });
     pin.insertBefore(img, pin.firstChild);
 
     clone.querySelector('.map-pin-label').textContent = s.label;
@@ -588,7 +631,7 @@ function bindEvents() {
   dom.videosContent.addEventListener('click', (e) => {
     const card = e.target.closest('[data-video-id]');
     if (!card) return;
-    playSound('click');
+    playSound('changeView');
     openPlayer(card.dataset.videoId);
   });
 
@@ -596,7 +639,7 @@ function bindEvents() {
   dom.gamesContent.addEventListener('click', (e) => {
     const card = e.target.closest('[data-game-id]');
     if (!card) return;
-    playSound('click');
+    playSound('changeView');
     const game = state.data.games.find(g => g.id === card.dataset.gameId);
     if (game && game.itchUrl) {
       window.open(game.itchUrl, '_blank', 'noopener,noreferrer');

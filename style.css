@@ -540,6 +540,12 @@ img { display: block; max-width: 100%; }
   background: var(--accent-pale);
 }
 
+.card.thumb-error {
+  background: var(--accent-light);
+  justify-content: center;
+  min-height: 80px;
+}
+
 /* ====== VIDEO PLAYER ====== */
 .player-window {
   width: 800px;
@@ -555,6 +561,13 @@ img { display: block; max-width: 100%; }
   width: 100%;
   display: block;
   max-height: calc(500px - 42px);
+}
+
+.player-error {
+  color: var(--text-light);
+  text-align: center;
+  padding: 2rem;
+  opacity: 0.7;
 }
 
 /* ====== FANTASY MAP ====== */
