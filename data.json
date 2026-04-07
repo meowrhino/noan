@@ -16,7 +16,7 @@
   "about": {
     "name": "Noan Cittadino",
     "bio": "Composer, sound designer and FMOD enthusiast based in Barcelona. I make music for games, re-compose soundtracks for fun, and spend way too much time tweaking reverb tails. Currently looking for cool projects to fill with sound.",
-    "portrait": "assets/portrait.png"
+    "portrait": "assets/icons/noan.png"
   },
   "videos": [
     {
@@ -75,7 +75,9 @@
     "hoverMap": "assets/sounds/hover-map.mp3",
     "hoverPin": "assets/sounds/hover-pin.mp3",
     "click": "assets/sounds/change-view.mp3",
-    "changeView": "assets/sounds/change-view.mp3"
+    "changeView": "assets/sounds/change-view.mp3",
+    "open": "assets/sounds/open-videos.mp3",
+    "close": "assets/sounds/close-videos.mp3"
   },
   "social": [
     { "id": "instagram",  "label": "Instagram",  "url": "https://www.instagram.com/nooanishere/",                "icon": "instagram",  "mapX": 28, "mapY": 55 },

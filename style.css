@@ -13,7 +13,6 @@
   --text-dark:       #3d3532;
   --text-light:      #e8e0c8;
   --shadow:          #2a2220;
-  --btn-size:        clamp(52px, 8vw, 80px);
   --font-hand:       'Lexend', system-ui, sans-serif;
   --font-body:       'Lexend', system-ui, sans-serif;
 }
@@ -151,8 +150,8 @@ img { display: block; max-width: 100%; }
 
 /* Default state = "popped out" (elevated) */
 .nav-btn {
-  width: var(--btn-size);
-  height: var(--btn-size);
+  width: 80px;
+  height: 80px;
   border-radius: 50%;
   background: var(--accent-light);
   border: 3px solid var(--accent-dark);
@@ -167,8 +166,8 @@ img { display: block; max-width: 100%; }
 
 .nav-btn .btn-icon,
 .nav-btn .btn-icon-hover {
-  width: clamp(28px, 4.5vw, 44px);
-  height: clamp(28px, 4.5vw, 44px);
+  width: 56px;
+  height: 56px;
   object-fit: contain;
 }
 
@@ -207,7 +206,7 @@ img { display: block; max-width: 100%; }
 
 /* ====== ABOUT TEXT (flip back) ====== */
 #about-text {
-  padding: clamp(14px, 2.5vw, 28px) clamp(14px, 2vw, 24px);
+  padding: clamp(20px, 4vw, 40px) clamp(18px, 3vw, 32px);
   display: flex;
   flex-direction: column;
   gap: 12px;
@@ -226,6 +225,7 @@ img { display: block; max-width: 100%; }
   font-size: 0.8rem;
   opacity: 0.6;
   line-height: 1.6;
+  text-align: center;
 }
 
 #credits a {
@@ -237,11 +237,15 @@ img { display: block; max-width: 100%; }
   text-decoration: underline;
 }
 
-/* Back button in flip-back titlebar */
+.flip-back .window-titlebar {
+  padding-left: 0;
+}
+
+/* Back button in flip-back titlebar (mirrors .close-btn) */
 .back-btn {
   width: 36px;
   height: 36px;
-  font-size: 1.2rem;
+  font-size: 1.6rem;
   font-weight: 900;
   color: var(--text-dark);
   display: flex;
@@ -257,10 +261,8 @@ img { display: block; max-width: 100%; }
   background: var(--accent-pale);
 }
 
-#about-bio {
-  font-size: 0.95rem;
-  line-height: 1.5;
-  opacity: 0.8;
+.back-btn:active {
+  background: var(--accent-dark);
 }
 
 /* ====== WINDOW SYSTEM ====== */
@@ -694,6 +696,11 @@ img { display: block; max-width: 100%; }
 
   .cards-grid {
     grid-template-columns: 1fr;
+  }
+
+  .player-window {
+    width: auto;
+    height: auto;
   }
 
 }

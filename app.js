@@ -140,12 +140,15 @@ function openWindow(id) {
   // Already open? Just bring to front
   if (state.openWindows.has(id)) { bringToFront(id); return; }
 
-  // Position relative to last window, or centered
-  const pos = getNextWindowPos(win.offsetWidth || 640, win.offsetHeight || 480);
-  win.style.left = pos.x + 'px';
-  win.style.top = pos.y + 'px';
-  win.classList.add('dragged');
-  lastWindowPos = pos;
+  // Position relative to last window, or centered (skip on mobile — CSS handles it)
+  const isMobile = window.matchMedia('(max-width: 480px)').matches;
+  if (!isMobile) {
+    const pos = getNextWindowPos(win.offsetWidth || 640, win.offsetHeight || 480);
+    win.style.left = pos.x + 'px';
+    win.style.top = pos.y + 'px';
+    win.classList.add('dragged');
+    lastWindowPos = pos;
+  }
 
   win.hidden = false;
   void win.offsetHeight;
@@ -241,12 +244,15 @@ function openPlayer(videoId) {
   vid.appendChild(src);
   content.appendChild(vid);
 
-  // Position relative to last window, or centered
-  const pos = getNextWindowPos(800, 500);
-  frame.style.left = pos.x + 'px';
-  frame.style.top = pos.y + 'px';
-  frame.classList.add('dragged');
-  lastWindowPos = pos;
+  // Position relative to last window, or centered (skip on mobile — CSS handles it)
+  const isMobile = window.matchMedia('(max-width: 480px)').matches;
+  if (!isMobile) {
+    const pos = getNextWindowPos(800, 500);
+    frame.style.left = pos.x + 'px';
+    frame.style.top = pos.y + 'px';
+    frame.classList.add('dragged');
+    lastWindowPos = pos;
+  }
 
   frame.hidden = false;
   void frame.offsetHeight;
@@ -481,12 +487,13 @@ function playSound(type) {
     return;
   }
 
-  // Fallback: synthesized sounds
+  // Fallback: synthesized sounds (match prefixes like 'openVideos', 'closeGames', etc.)
   const now = ctx.currentTime;
 
-  if (type === 'open' || type === 'close') {
-    const freqs = type === 'open' ? [440, 554, 660] : [660, 554, 440];
-    const step = type === 'open' ? 0.06 : 0.05;
+  if (type.startsWith('open') || type.startsWith('close')) {
+    const isOpen = type.startsWith('open');
+    const freqs = isOpen ? [440, 554, 660] : [660, 554, 440];
+    const step = isOpen ? 0.06 : 0.05;
     freqs.forEach((freq, i) => {
       const osc = ctx.createOscillator();
       const g = ctx.createGain();
@@ -507,7 +514,7 @@ function playSound(type) {
   osc.type = 'sine';
   osc.connect(gain);
 
-  if (type === 'hover') {
+  if (type.startsWith('hover')) {
     osc.frequency.setValueAtTime(900, now);
     osc.frequency.exponentialRampToValueAtTime(1200, now + 0.04);
     gain.gain.setValueAtTime(0.06, now);
@@ -524,8 +531,8 @@ function playSound(type) {
 
 /* ====== EVENT BINDING ====== */
 function bindEvents() {
-  // Init audio on first interaction
-  document.addEventListener('click', () => initAudio(), { once: true });
+  // Init audio early (pointerdown fires before click, giving preload a head start)
+  document.addEventListener('pointerdown', () => initAudio(), { once: true });
 
   // Nav buttons
   dom.btnVideos.addEventListener('click', () => openWindow('window-videos'));

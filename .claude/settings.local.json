@@ -43,7 +43,18 @@
       "Bash(git restore:*)",
       "Bash(git rm:*)",
       "Bash(python3 -c \"import json; f=open\\(''/Users/manu/Documents/GitHub/noan/data.json''\\); d=json.load\\(f\\); print\\(''JSON valid''\\)\")",
-      "Bash(command -v python3)"
+      "Bash(command -v python3)",
+      "Bash(mv \"Backpack open.mp3\" open-videos.mp3)",
+      "Bash(mv \"Backpack close.mp3\" close-videos.mp3)",
+      "Bash(mv \"games open.mp3\" open-games.mp3)",
+      "Bash(mv \"games close.mp3\" close-games.mp3)",
+      "Bash(mv \"map open.mp3\" open-map.mp3)",
+      "Bash(mv videos_0.png btn-videos.png)",
+      "Bash(mv videos_1.png btn-videos-hover.png)",
+      "Bash(mv games_0.png btn-games.png)",
+      "Bash(mv games_1.png btn-games-hover.png)",
+      "Bash(mv socials_0.png btn-map.png)",
+      "Bash(xargs kill:*)"
     ]
   }
 }
