@@ -27,7 +27,10 @@ function cacheDom() {
   dom.btnGames = document.getElementById('btn-games');
   dom.btnMap = document.getElementById('btn-map');
   dom.portraitImg = document.getElementById('portrait-img');
+  dom.portraitArea = document.getElementById('portrait-area');
   dom.aboutBio = document.getElementById('about-bio');
+  dom.flipBackBtn = document.getElementById('flip-back-btn');
+  dom.closeHomeBack = document.getElementById('close-home-back');
   dom.windowVideos = document.getElementById('window-videos');
   dom.windowGames = document.getElementById('window-games');
   dom.windowMap = document.getElementById('window-map');
@@ -93,7 +96,7 @@ function closeHome() {
 
 function openHome() {
   dom.reopenBtn.hidden = true;
-  dom.homePanel.classList.remove('hidden');
+  dom.homePanel.classList.remove('hidden', 'flipped');
   // Reset position if it was dragged
   dom.homePanel.style.position = '';
   dom.homePanel.style.left = '';
@@ -169,7 +172,8 @@ function closeWindowById(id, withSound = true) {
 
   win.classList.remove('open');
   win.classList.add('closing');
-  if (withSound) playSound('close');
+  const closeSounds = { 'window-videos': 'closeVideos', 'window-games': 'closeGames', 'window-map': 'closeMap' };
+  if (withSound) playSound(closeSounds[id] || 'close');
 
   state.openWindows.delete(id);
   const idx = state.windowStack.indexOf(id);
@@ -424,12 +428,11 @@ function renderMap() {
     pin.style.left = s.mapX + '%';
     pin.style.top = s.mapY + '%';
 
-    // Insert icon from SVG sprite
-    const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
-    const use = document.createElementNS('http://www.w3.org/2000/svg', 'use');
-    use.setAttributeNS('http://www.w3.org/1999/xlink', 'href', `#icon-${s.icon}`);
-    svg.appendChild(use);
-    pin.insertBefore(svg, pin.firstChild);
+    // Insert icon from PNG
+    const img = document.createElement('img');
+    img.src = `assets/icons/map/${s.icon}.png`;
+    img.alt = s.label;
+    pin.insertBefore(img, pin.firstChild);
 
     clone.querySelector('.map-pin-label').textContent = s.label;
     container.appendChild(clone);
@@ -524,16 +527,16 @@ function bindEvents() {
   // Init audio on first interaction
   document.addEventListener('click', () => initAudio(), { once: true });
 
-  // Nav buttons (each has its own click + open sound)
-  dom.btnVideos.addEventListener('click', () => { playSound('clickVideos'); openWindow('window-videos'); });
-  dom.btnGames.addEventListener('click', () => { playSound('clickGames'); openWindow('window-games'); });
-  dom.btnMap.addEventListener('click', () => { playSound('clickMap'); openWindow('window-map'); });
+  // Nav buttons
+  dom.btnVideos.addEventListener('click', () => openWindow('window-videos'));
+  dom.btnGames.addEventListener('click', () => openWindow('window-games'));
+  dom.btnMap.addEventListener('click', () => openWindow('window-map'));
 
-  // Hover sounds (only on pointer devices)
+  // Hover sounds (only on pointer devices) — different pitch per button
   if (state.hasHover) {
-    [dom.btnVideos, dom.btnGames, dom.btnMap].forEach(btn => {
-      btn.addEventListener('mouseenter', () => playSound('hover'));
-    });
+    dom.btnVideos.addEventListener('mouseenter', () => playSound('hoverVideos'));
+    dom.btnGames.addEventListener('mouseenter', () => playSound('hoverGames'));
+    dom.btnMap.addEventListener('mouseenter', () => playSound('hoverMap'));
   }
 
   // Close buttons for window frames
@@ -557,14 +560,32 @@ function bindEvents() {
     if (!e.target.closest('.nav-btn')) bringHomeFront();
   });
 
-  // Close home panel
+  // Close home panel (both front and back close buttons)
   dom.closeHome.addEventListener('click', (e) => {
     e.stopPropagation();
     closeHome();
   });
+  dom.closeHomeBack.addEventListener('click', (e) => {
+    e.stopPropagation();
+    closeHome();
+  });
+
+  // Flip: click portrait to show about
+  dom.portraitArea.addEventListener('click', () => {
+    dom.homePanel.classList.add('flipped');
+    playSound('changeView');
+  });
+
+  // Flip back: click back button to return to front
+  dom.flipBackBtn.addEventListener('click', (e) => {
+    e.stopPropagation();
+    dom.homePanel.classList.remove('flipped');
+    playSound('changeView');
+  });
 
   // Reopen button
   dom.reopenBtn.addEventListener('click', () => {
+    playSound('changeView');
     openHome();
   });
 
@@ -594,10 +615,10 @@ function bindEvents() {
     }
   });
 
-  // Hover sounds on map pins (delegated)
+  // Hover sounds on map pins (delegated via capture)
   if (state.hasHover) {
     dom.mapContent.addEventListener('mouseenter', (e) => {
-      if (e.target.closest('.map-pin')) playSound('hover');
+      if (e.target.closest('.map-pin')) playSound('hoverPin');
     }, true);
   }
 
