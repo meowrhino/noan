@@ -54,7 +54,10 @@
       "Bash(mv games_0.png btn-games.png)",
       "Bash(mv games_1.png btn-games-hover.png)",
       "Bash(mv socials_0.png btn-map.png)",
-      "Bash(xargs kill:*)"
+      "Bash(xargs kill:*)",
+      "Bash(command -v npx)",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\" http://localhost:8090/)",
+      "Bash(grep -r \"localhost\\\\|127.0.0.1\\\\|dev\\\\|staging\" /Users/manu/Documents/GitHub/noan --include=*.html --include=*.js --include=*.json)"
     ]
   }
 }
