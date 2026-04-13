@@ -76,7 +76,8 @@ async function loadData() {
 const THEME_MAP = {
   bg:'--bg', panelBg:'--panel-bg', accent:'--accent', accentLight:'--accent-light',
   accentDark:'--accent-dark', accentPale:'--accent-pale', mapLand:'--map-land',
-  mapSea:'--map-sea', textDark:'--text-dark', textLight:'--text-light', shadow:'--shadow'
+  mapSea:'--map-sea', textDark:'--text-dark', textLight:'--text-light', shadow:'--shadow',
+  playerBg:'--player-bg'
 };
 
 function applyTheme() {
@@ -272,8 +273,10 @@ function openPlayer(videoId) {
     content.appendChild(msg);
   });
   const src = document.createElement('source');
-  src.src = videoPath(video.id);
-  src.type = 'video/webm';
+  const vPath = videoPath(video.id);
+  src.src = vPath;
+  const ext = vPath.split('.').pop().toLowerCase();
+  src.type = ext === 'mp4' ? 'video/mp4' : ext === 'mov' ? 'video/quicktime' : 'video/webm';
   vid.appendChild(src);
   content.appendChild(vid);
 

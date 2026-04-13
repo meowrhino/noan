@@ -13,6 +13,7 @@
   --text-dark:       #3d3532;
   --text-light:      #e8e0c8;
   --shadow:          #2a2220;
+  --player-bg:       #000000;
   --font-hand:       'Lexend', system-ui, sans-serif;
   --font-body:       'Lexend', system-ui, sans-serif;
 }
@@ -557,7 +558,7 @@ img { display: block; max-width: 100%; }
 
 .player-content {
   padding: 0 !important;
-  background: #000;
+  background: var(--player-bg);
 }
 
 .player-content video {

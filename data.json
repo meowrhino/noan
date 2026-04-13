@@ -22,7 +22,8 @@
     "mapSea": "#e8e0c8",
     "textDark": "#3d3532",
     "textLight": "#e8e0c8",
-    "shadow": "#2a2220"
+    "shadow": "#2a2220",
+    "playerBg": "#000000"
   },
   "about": {
     "name": "Noan Cittadino",
