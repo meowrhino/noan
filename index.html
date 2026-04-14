@@ -59,7 +59,8 @@
             </div>
           </div>
           <div id="about-text">
-            <p id="about-bio"></p>
+            <div id="pfp-gallery"></div>
+            <div id="about-bio"></div>
             <div id="credits">
               <p>Drawings by: <a href="https://www.instagram.com/" target="_blank" rel="noopener noreferrer">@artist</a></p>
               <p>Web: <a href="https://meowrhino.studio" target="_blank" rel="noopener noreferrer">meowrhino.studio</a></p>
@@ -71,6 +72,7 @@
 
     <!-- Reopen button -->
     <button id="reopen-btn" hidden>noan</button>
+    <button id="howto-btn" hidden>how to</button>
   </div>
 
   <!-- ====== VIDEOS WINDOW ====== -->
@@ -164,6 +166,19 @@
       <span class="map-pin-label"></span>
     </a>
   </template>
+
+  <!-- ====== WELCOME WINDOW (shown on load) ====== -->
+  <div class="window-frame" id="welcome-window" hidden>
+    <div class="window-titlebar">
+      <span class="window-title">How To</span>
+      <div class="titlebar-controls">
+        <button class="close-btn" id="welcome-dismiss" aria-label="Close">&times;</button>
+      </div>
+    </div>
+    <div class="window-content welcome-content">
+      <p>Drag any window by its title bar to move it around! You can close and reopen any window! Enjoy!</p>
+    </div>
+  </div>
 
   <script src="app.js"></script>
 </body>

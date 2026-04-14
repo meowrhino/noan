@@ -47,6 +47,10 @@ function cacheDom() {
   dom.videosContent = document.getElementById('videos-content');
   dom.gamesContent = document.getElementById('games-content');
   dom.mapContent = document.getElementById('map-content');
+  dom.howtoBtn = document.getElementById('howto-btn');
+  dom.welcomeWindow = document.getElementById('welcome-window');
+  dom.welcomeDismiss = document.getElementById('welcome-dismiss');
+  dom.pfpGallery = document.getElementById('pfp-gallery');
 }
 
 /* ====== INIT ====== */
@@ -58,7 +62,115 @@ document.addEventListener('DOMContentLoaded', async () => {
   renderHome();
   bindEvents();
   initDrag();
+  initHowTo();
+  initPfpGallery();
 });
+
+/* ====== HOW-TO / WELCOME ====== */
+function showWelcomeWindow() {
+  const win = dom.welcomeWindow;
+  win.hidden = false;
+  const w = 440, h = 160;
+  win.style.left = (window.innerWidth - w) / 2 + 'px';
+  win.style.top = (window.innerHeight - h) / 2 + 'px';
+  win.classList.add('dragged', 'open');
+  win.style.zIndex = state.nextZIndex++;
+}
+
+function dismissWelcome() {
+  const win = dom.welcomeWindow;
+  win.classList.remove('open');
+  win.classList.add('closing');
+  setTimeout(() => { win.hidden = true; win.classList.remove('closing'); }, ANIM_MS);
+  dom.howtoBtn.hidden = false;
+}
+
+function initHowTo() {
+  // Show on first load
+  showWelcomeWindow();
+
+  dom.welcomeDismiss.addEventListener('click', (e) => {
+    e.stopPropagation();
+    dismissWelcome();
+  });
+
+  // Make welcome window titlebar draggable
+  makeDraggable(dom.welcomeWindow.querySelector('.window-titlebar'), dom.welcomeWindow);
+
+  // Howto button reopens the welcome window
+  dom.howtoBtn.addEventListener('click', () => {
+    if (dom.welcomeWindow.hidden) {
+      dom.howtoBtn.hidden = true;
+      showWelcomeWindow();
+    } else {
+      dom.welcomeWindow.style.zIndex = state.nextZIndex++;
+    }
+  });
+}
+
+/* ====== PFP GALLERY (flip-through images) ====== */
+function initPfpGallery() {
+  const container = dom.pfpGallery;
+  if (!container) return;
+
+  // Probe for sequential images: 1.webp, 2.webp, ...
+  const images = [];
+  let idx = 0;
+
+  function buildGallery() {
+    if (images.length === 0) { container.style.display = 'none'; return; }
+
+    container.innerHTML = `
+      <div class="pfp-flipper">
+        <div class="pfp-face pfp-front"><img src="${images[0]}" alt="Profile photo"></div>
+        <div class="pfp-face pfp-back"><img src="" alt="Profile photo"></div>
+      </div>`;
+
+    const flipper = container.querySelector('.pfp-flipper');
+    const frontImg = container.querySelector('.pfp-front img');
+    const backImg = container.querySelector('.pfp-back img');
+    let flipped = false;
+
+    container.addEventListener('click', () => {
+      if (images.length <= 1) return;
+      const nextIdx = (idx + 1) % images.length;
+      const goingForward = nextIdx !== 0; // reverse flip when wrapping to first
+
+      // Load next image on the hidden face
+      if (flipped) {
+        frontImg.src = images[nextIdx];
+      } else {
+        backImg.src = images[nextIdx];
+      }
+
+      // Toggle flip direction
+      flipped = !flipped;
+      if (goingForward) {
+        flipper.classList.remove('flip-reverse');
+        flipper.classList.toggle('flipped', flipped);
+      } else {
+        // Reverse animation when going back to first
+        flipper.classList.add('flip-reverse');
+        flipper.classList.toggle('flipped', flipped);
+      }
+
+      idx = nextIdx;
+      playSound(goingForward ? 'flipPfpForward' : 'flipPfpBack');
+    });
+  }
+
+  function probe(n) {
+    const img = new Image();
+    img.onload = () => {
+      images.push(`assets/pfps/${n}.webp`);
+      probe(n + 1);
+    };
+    img.onerror = () => buildGallery();
+    img.src = `assets/pfps/${n}.webp`;
+  }
+
+  probe(1);
+}
 
 /* ====== DATA LOADING ====== */
 async function loadData() {
@@ -94,7 +206,7 @@ function renderHome() {
   const d = state.data;
   dom.portraitImg.src = d.about.portrait;
   dom.portraitImg.alt = d.about.name;
-  dom.aboutBio.textContent = d.about.bio;
+  renderAboutBio(d.about.bio);
 
   // Set nav button icons from data.json
   const nav = d.assets?.navButtons;
@@ -114,6 +226,38 @@ function renderHome() {
     const mapBg = document.querySelector('.map-bg');
     if (mapBg) mapBg.src = d.assets.mapBackground;
   }
+}
+
+/* ====== ABOUT BIO RENDERING ====== */
+const BIO_LINK_MAP = {
+  'showreels': { window: 'window-videos', label: 'showreels' },
+  'game jams': { window: 'window-games', label: 'game jams' },
+  'map':       { window: 'window-map',   label: 'map' },
+};
+
+function escapeHTML(str) {
+  const d = document.createElement('div');
+  d.textContent = str;
+  return d.innerHTML;
+}
+
+function renderAboutBio(bioText) {
+  const paragraphs = bioText.split('\n\n');
+  const html = paragraphs.map(p => {
+    // Replace {email:...} markers
+    let safe = escapeHTML(p);
+    safe = safe.replace(/\{email:([^}]+)\}/g, (_, addr) =>
+      `<a class="bio-link" href="mailto:${escapeHTML(addr)}">${escapeHTML(addr)}</a>`
+    );
+    // Replace {name} markers for window links
+    safe = safe.replace(/\{([^}]+)\}/g, (_, key) => {
+      const entry = BIO_LINK_MAP[key];
+      if (!entry) return key;
+      return `<a class="bio-link bio-nav" href="#" data-open="${entry.window}">${escapeHTML(entry.label)}</a>`;
+    });
+    return `<p>${safe}</p>`;
+  }).join('');
+  dom.aboutBio.innerHTML = html;
 }
 
 /* ====== HOME PANEL OPEN/CLOSE ====== */
@@ -156,11 +300,19 @@ const CASCADE_GAP = 30;
 let lastWindowPos = null; // {x, y} of last used window
 
 function getNextWindowPos(w, h) {
+  let x, y;
   if (lastWindowPos && state.openWindows.size > 0) {
-    return { x: lastWindowPos.x + CASCADE_GAP, y: lastWindowPos.y + CASCADE_GAP };
+    x = lastWindowPos.x + CASCADE_GAP;
+    y = lastWindowPos.y + CASCADE_GAP;
+  } else {
+    lastWindowPos = null;
+    x = (window.innerWidth - w) / 2;
+    y = (window.innerHeight - h) / 2;
   }
-  lastWindowPos = null;
-  return { x: (window.innerWidth - w) / 2, y: (window.innerHeight - h) / 2 };
+  // Clamp to viewport so windows don't spawn off-screen on mobile
+  x = Math.max(0, Math.min(x, window.innerWidth - 40));
+  y = Math.max(0, Math.min(y, window.innerHeight - 40));
+  return { x, y };
 }
 
 function openWindow(id) {
@@ -615,19 +767,18 @@ function bindEvents() {
   // Flip: click portrait to show about
   dom.portraitArea.addEventListener('click', () => {
     dom.homePanel.classList.add('flipped');
-    playSound('changeView');
+    playSound('flipHomeForward');
   });
 
   // Flip back: click back button to return to front
   dom.flipBackBtn.addEventListener('click', (e) => {
     e.stopPropagation();
     dom.homePanel.classList.remove('flipped');
-    playSound('changeView');
+    playSound('flipHomeBack');
   });
 
   // Reopen button
   dom.reopenBtn.addEventListener('click', () => {
-    playSound('changeView');
     openHome();
   });
 
@@ -640,7 +791,6 @@ function bindEvents() {
   function handleVideoCard(e) {
     const card = e.target.closest('[data-video-id]');
     if (!card) return;
-    playSound('changeView');
     openPlayer(card.dataset.videoId);
   }
   dom.videosContent.addEventListener('click', handleVideoCard);
@@ -669,5 +819,14 @@ function bindEvents() {
       if (e.target.closest('.map-pin')) playSound('hoverPin');
     }, true);
   }
+
+  // Bio links → open corresponding windows
+  dom.aboutBio.addEventListener('click', (e) => {
+    const link = e.target.closest('.bio-link[data-open]');
+    if (!link) return;
+    e.preventDefault();
+    openWindow(link.dataset.open);
+    // No extra sound here — openWindow() already plays one
+  });
 
 }

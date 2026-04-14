@@ -124,7 +124,7 @@ img { display: block; max-width: 100%; }
   cursor: pointer;
   transition: transform 0.1s, box-shadow 0.1s, background 0.1s;
   transform: translate(-2px, -3px);
-  z-index: 99999;
+  z-index: 10;
   position: relative;
   pointer-events: auto;
 }
@@ -214,12 +214,43 @@ img { display: block; max-width: 100%; }
   gap: 12px;
   color: var(--text-light);
   flex: 1;
+  overflow-y: auto;
+  scrollbar-color: var(--accent-dark) var(--accent-light);
+  scrollbar-width: thin;
 }
+
+#about-text::-webkit-scrollbar { width: 14px; }
+#about-text::-webkit-scrollbar-track { background: var(--accent-light); border-left: 3px solid var(--shadow); }
+#about-text::-webkit-scrollbar-thumb { background: var(--accent-dark); border: 2px solid var(--accent-light); }
 
 #about-bio {
   font-size: 0.95rem;
   line-height: 1.5;
   opacity: 0.8;
+}
+
+#about-bio p { margin-bottom: 0.8em; }
+#about-bio p:last-child { margin-bottom: 0; }
+
+.bio-link {
+  color: var(--accent-light);
+  text-decoration: none;
+  cursor: pointer;
+  transition: color 0.1s;
+}
+
+.bio-link:hover {
+  color: var(--accent-pale);
+}
+
+/* Navigation links (showreels, game jams, map) — stronger orange */
+.bio-nav {
+  color: var(--accent);
+  font-weight: 700;
+}
+
+.bio-nav:hover {
+  color: var(--accent-pale);
 }
 
 #credits {
@@ -643,5 +674,206 @@ img { display: block; max-width: 100%; }
 
 .map-pin:hover .map-pin-label {
   opacity: 1;
+}
+
+/* ====== HOW-TO BUTTON ====== */
+#howto-btn {
+  font-family: var(--font-hand);
+  font-size: clamp(0.85rem, 2vw, 1rem);
+  font-weight: 400;
+  letter-spacing: 0.1em;
+  text-transform: lowercase;
+  color: var(--text-dark);
+  background: var(--accent-light);
+  border: 3px solid var(--accent-dark);
+  padding: 8px 20px;
+  box-shadow: 4px 4px 0 var(--accent-dark);
+  cursor: pointer;
+  transition: transform 0.1s, box-shadow 0.1s, background 0.1s;
+  transform: translate(-2px, -3px);
+  position: fixed;
+  bottom: 10dvh;
+  left: 50%;
+  translate: -50% 0;
+  z-index: 1;
+  pointer-events: auto;
+}
+
+#howto-btn:hover {
+  transform: translate(0, 0);
+  box-shadow: 2px 2px 0 var(--accent-dark);
+  background: var(--accent-pale);
+}
+
+#howto-btn:active {
+  transform: translate(1px, 1px);
+  box-shadow: 0 0 0 var(--accent-dark);
+}
+
+#howto-btn[hidden] { display: none; }
+
+/* Welcome window */
+#welcome-window {
+  width: 440px;
+  height: auto;
+}
+
+.welcome-content {
+  padding: 20px 24px !important;
+  text-align: center;
+}
+
+.welcome-content p {
+  color: var(--text-light);
+  font-size: 0.95rem;
+  line-height: 1.6;
+}
+
+/* ====== PFP GALLERY ====== */
+#pfp-gallery {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 12px;
+  perspective: 600px;
+  cursor: pointer;
+}
+
+.pfp-flipper {
+  width: 140px;
+  height: 140px;
+  position: relative;
+  transform-style: preserve-3d;
+  transition: transform 0.5s ease;
+}
+
+.pfp-flipper.flipped {
+  transform: rotateY(180deg);
+}
+
+.pfp-flipper.flip-reverse {
+  transition: transform 0.5s ease;
+}
+
+.pfp-flipper.flip-reverse.flipped {
+  transform: rotateY(-180deg);
+}
+
+.pfp-face {
+  position: absolute;
+  inset: 0;
+  backface-visibility: hidden;
+  border: 3px solid var(--shadow);
+  box-shadow: 4px 4px 0 var(--shadow);
+  overflow: hidden;
+}
+
+.pfp-face img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.pfp-back {
+  transform: rotateY(180deg);
+}
+
+/* ====== RESPONSIVE: TABLET ====== */
+@media (max-width: 768px) {
+  .window-frame {
+    width: 90vw;
+    height: 70vh;
+  }
+
+  .player-window {
+    width: 95vw;
+    height: 60vh;
+  }
+
+  .player-content video {
+    max-height: calc(60vh - 42px);
+  }
+
+  #home-panel {
+    max-width: 360px;
+  }
+
+  .nav-btn {
+    width: 60px;
+    height: 60px;
+  }
+
+  .nav-btn .btn-icon,
+  .nav-btn .btn-icon-hover {
+    width: 40px;
+    height: 40px;
+  }
+
+  #nav-buttons {
+    gap: 16px;
+  }
+
+  #portrait-area {
+    min-height: 200px;
+  }
+
+  .window-title {
+    font-size: 0.95rem;
+  }
+
+  .cards-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .card-video .card-thumb {
+    width: 100px;
+    height: 75px;
+  }
+}
+
+/* ====== RESPONSIVE: PHONE ====== */
+@media (max-width: 480px) {
+  .window-frame {
+    width: 96vw;
+    height: 75vh;
+  }
+
+  #home-panel {
+    max-width: 300px;
+  }
+
+  .nav-btn {
+    width: 50px;
+    height: 50px;
+  }
+
+  .nav-btn .btn-icon,
+  .nav-btn .btn-icon-hover {
+    width: 34px;
+    height: 34px;
+  }
+
+  #portrait-area {
+    min-height: 160px;
+  }
+
+  #home-body {
+    padding: clamp(10px, 2vw, 20px);
+    gap: clamp(10px, 2vw, 16px);
+  }
+
+  .map-pin {
+    width: 30px;
+    height: 30px;
+  }
+
+  .map-pin img {
+    width: 16px;
+    height: 16px;
+  }
+
+  .pfp-flipper {
+    width: 110px;
+    height: 110px;
+  }
 }
 

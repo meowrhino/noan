@@ -27,7 +27,7 @@
   },
   "about": {
     "name": "Noan Cittadino",
-    "bio": "Composer, sound designer and FMOD enthusiast based in Barcelona. I make music for games, re-compose soundtracks for fun, and spend way too much time tweaking reverb tails. Currently looking for cool projects to fill with sound.",
+    "bio": "My name is Noan and I'm a music composer, producer and sound designer from Barcelona, currently based in Bristol, UK. I've been playing games since forever and always felt like there was a depth to game music that wasn't matched by linear media, and my interest grew into a passion from there. I graduated from a commercial music course at Bath Spa University.\n\nMy music has always been eclectic. My references and inspirations encompass a multitude of genres, and when that translated into my own music, I realized that soundtrack work is where this versatility would serve me best. I've mainly worked on electronic and orchestral tracks, as well as done recording studio work both solo and with bands. I also have experience with both FMOD and Wwise as audio implementation middlewares. The visuals and atmosphere of a game are my biggest inspirations for the work I deliver, but my passion truly lies in the non-linear considerations that come into my composition process. It is my belief that a dynamic music system is the key to an elevated soundtrack (I wrote my dissertation on it!). Check out my {showreels} and {game jams} to listen to my work!\n\nIf you have any questions or would like to work together, here's a {map} of my socials or email me at {email:nooanmusic@gmail.com} :)",
     "portrait": "assets/icons/noan.png"
   },
   "videos": [
@@ -90,7 +90,11 @@
     "hoverGames": "assets/sounds/hover-games.mp3",
     "hoverMap": "assets/sounds/hover-map.mp3",
     "hoverPin": "assets/sounds/hover-pin.mp3",
-    "changeView": "assets/sounds/change-view.mp3"
+    "changeView": "assets/sounds/change-view.mp3",
+    "flipHomeForward": "assets/sounds/change-view.mp3",
+    "flipHomeBack": "assets/sounds/change-view.mp3",
+    "flipPfpForward": "assets/sounds/change-view.mp3",
+    "flipPfpBack": "assets/sounds/change-view.mp3"
   },
   "social": [
     { "id": "instagram",  "label": "Instagram",  "url": "https://www.instagram.com/nooanishere/",                "icon": "instagram",  "mapX": 28, "mapY": 55 },
