@@ -1,3 +1,18 @@
+/*
+ * NOAN PORTFOLIO — app.js
+ * ════════════════════════
+ * Architecture:
+ *   - STATE:        Single global object holding runtime data, open windows, audio context.
+ *   - DATA:         All content loaded from data.json (videos, games, social, theme, sounds).
+ *   - WINDOWS:      Draggable window-frame elements managed via openWindow/closeWindowById.
+ *                   Each gets a stacking z-index; topmost tracked in windowStack[].
+ *   - HOME PANEL:   Special non-window card with flip animation (front=portrait, back=about).
+ *   - SOUND:        MP3s preloaded into AudioBuffers on first interaction.
+ *                   Keys defined in data.json soundEffects — see _soundEffectsGuide there.
+ *   - HOW-TO:       Welcome window shown on load; "how to" button appears when dismissed.
+ *   - PFP GALLERY:  Flip-through profile photos in the about section (probes assets/pfps/N.webp).
+ */
+
 /* ====== STATE ====== */
 const state = {
   data: null,
@@ -134,7 +149,10 @@ function initPfpGallery() {
     container.addEventListener('click', () => {
       if (images.length <= 1) return;
       const nextIdx = (idx + 1) % images.length;
-      const goingForward = nextIdx !== 0; // reverse flip when wrapping to first
+      // Flip direction: forward (Y+180) for sequential images,
+      // reverse (Y-180) when wrapping back to the first image,
+      // so the card always appears to spin in the logical direction.
+      const goingForward = nextIdx !== 0;
 
       // Load next image on the hidden face
       if (flipped) {
@@ -281,7 +299,12 @@ function openHome() {
   playSound('openHome');
 }
 
-/* ====== WINDOW SYSTEM ====== */
+/*
+ * ====== WINDOW SYSTEM ======
+ * Windows use a monotonically increasing z-index (state.nextZIndex++) so the most
+ * recently focused window is always on top. windowStack[] tracks order for Escape-to-close.
+ * ANIM_MS must match the CSS pop-in/pop-out animation duration (0.15s).
+ */
 const ANIM_MS = 150;
 
 function bringToFront(id) {
@@ -595,7 +618,9 @@ function initDrag() {
     if (frame) makeDraggable(bar, frame);
   });
 
-  // Global move/end listeners (only need once)
+  // Global move/end listeners registered once on document.
+  // They check _dragging and return early when idle, so the overhead is negligible.
+  // This avoids add/remove churn on every drag start/end.
   document.addEventListener('mousemove', (e) => _moveDrag(e.clientX, e.clientY));
   document.addEventListener('mouseup', _endDrag);
   document.addEventListener('touchmove', (e) => {
@@ -633,7 +658,13 @@ function renderMap() {
 }
 
 
-/* ====== SOUND EFFECTS ====== */
+/*
+ * ====== SOUND EFFECTS ======
+ * All sounds are defined in data.json under "soundEffects" as key→path pairs.
+ * Keys follow the pattern: action + target (e.g. "openVideos", "hoverMap", "flipPfpForward").
+ * Multiple keys can point to the same MP3 file.
+ * Sounds are preloaded into AudioBuffers on first user interaction.
+ */
 function initAudio() {
   if (state.audioCtx) return;
   try {
@@ -650,70 +681,39 @@ async function preloadSounds() {
     if (!path) continue;
     try {
       const res = await fetch(path);
-      if (!res.ok) continue;
+      if (!res.ok) {
+        console.warn(`Sound '${type}' failed to load (HTTP ${res.status}). Check that the file exists at: ${path}`);
+        continue;
+      }
       const buf = await res.arrayBuffer();
       state.soundBuffers[type] = await ctx.decodeAudioData(buf);
     } catch (e) {
-      console.warn(`Failed to load sound: ${type}`, e);
+      console.warn(`Sound '${type}' failed to load. Check that the file exists at: ${path}`, e);
     }
   }
 }
 
 function playSound(type) {
   if (!state.audioCtx) return;
-  const ctx = state.audioCtx;
 
-  // Use MP3 if available
-  if (state.soundBuffers[type]) {
-    try {
-      const source = ctx.createBufferSource();
-      source.buffer = state.soundBuffers[type];
-      source.connect(ctx.destination);
-      source.start();
-    } catch (e) { /* audio context suspended or unavailable */ }
+  if (!state.soundBuffers[type]) {
+    const sfx = state.data?.soundEffects;
+    if (sfx && sfx[type]) {
+      // Key exists in data.json but buffer wasn't loaded — file issue
+      console.warn(`Sound '${type}' is defined in data.json but failed to load. Check: ${sfx[type]}`);
+    } else {
+      // Key doesn't exist at all — missing from data.json
+      console.warn(`Sound '${type}' not found. Add it to soundEffects in data.json.`);
+    }
     return;
   }
 
-  // Fallback: synthesized sounds (match prefixes like 'openVideos', 'closeGames', etc.)
-  const now = ctx.currentTime;
-
-  if (type.startsWith('open') || type.startsWith('close')) {
-    const isOpen = type.startsWith('open');
-    const freqs = isOpen ? [440, 554, 660] : [660, 554, 440];
-    const step = isOpen ? 0.06 : 0.05;
-    freqs.forEach((freq, i) => {
-      const osc = ctx.createOscillator();
-      const g = ctx.createGain();
-      osc.type = 'sine';
-      osc.frequency.setValueAtTime(freq, now + i * step);
-      g.gain.setValueAtTime(0.08, now + i * step);
-      g.gain.exponentialRampToValueAtTime(0.001, now + i * step + 0.12);
-      osc.connect(g).connect(ctx.destination);
-      osc.start(now + i * step);
-      osc.stop(now + i * step + 0.12);
-    });
-    return;
-  }
-
-  const gain = ctx.createGain();
-  gain.connect(ctx.destination);
-  const osc = ctx.createOscillator();
-  osc.type = 'sine';
-  osc.connect(gain);
-
-  if (type.startsWith('hover')) {
-    osc.frequency.setValueAtTime(900, now);
-    osc.frequency.exponentialRampToValueAtTime(1200, now + 0.04);
-    gain.gain.setValueAtTime(0.06, now);
-    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.06);
-    osc.start(now); osc.stop(now + 0.06);
-  } else if (type === 'click') {
-    osc.frequency.setValueAtTime(660, now);
-    osc.frequency.exponentialRampToValueAtTime(440, now + 0.08);
-    gain.gain.setValueAtTime(0.1, now);
-    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.1);
-    osc.start(now); osc.stop(now + 0.1);
-  }
+  try {
+    const source = state.audioCtx.createBufferSource();
+    source.buffer = state.soundBuffers[type];
+    source.connect(state.audioCtx.destination);
+    source.start();
+  } catch (e) { /* audio context suspended or unavailable */ }
 }
 
 /* ====== EVENT BINDING ====== */

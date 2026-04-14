@@ -2,6 +2,7 @@
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
 :root {
+  /* --- Colors (overridden by theme in data.json) --- */
   --bg:              #c8c0a8;
   --panel-bg:        #3d3532;
   --accent:          #c47a4a;
@@ -14,8 +15,18 @@
   --text-light:      #e8e0c8;
   --shadow:          #2a2220;
   --player-bg:       #000000;
+
+  /* --- Typography --- */
   --font-hand:       'Lexend', system-ui, sans-serif;
   --font-body:       'Lexend', system-ui, sans-serif;
+
+  /* --- Borders & Shadows --- */
+  --border-thin:     3px;
+  --border-thick:    4px;
+
+  /* --- Layout --- */
+  --panel-max-width: 480px;
+  --titlebar-size:   36px;
 }
 
 html, body {
@@ -26,7 +37,12 @@ html, body {
   overflow: hidden;
 }
 
-/* Animated diamond pattern background */
+/*
+ * Animated diamond background.
+ * Uses repeating-conic-gradient rotated 45° to create a checker/diamond pattern.
+ * The oversized element (250%) + rotation ensures full coverage with no gaps.
+ * bgMove scrolls the pattern horizontally for a subtle parallax effect.
+ */
 body::before {
   content: '';
   position: fixed;
@@ -50,6 +66,49 @@ body::before {
 button { font-family: inherit; cursor: pointer; border: none; background: none; }
 img { display: block; max-width: 100%; }
 
+/* --- Shared scrollbar theme (Firefox + WebKit) --- */
+.themed-scroll {
+  scrollbar-color: var(--accent-dark) var(--accent-light);
+  scrollbar-width: thin;
+}
+
+.themed-scroll::-webkit-scrollbar { width: 16px; }
+.themed-scroll::-webkit-scrollbar-track { background: var(--accent-light); border-left: var(--border-thin) solid var(--shadow); }
+.themed-scroll::-webkit-scrollbar-thumb { background: var(--accent-dark); border: 2px solid var(--accent-light); }
+
+/*
+ * Shared "press-in" button pattern.
+ * Default: elevated (translated up-left with shadow).
+ * Hover: flat (no translate, smaller shadow).
+ * Active: pushed past flat (translate down-right, no shadow).
+ */
+.btn-press {
+  transition: transform 0.1s, box-shadow 0.1s, background 0.1s;
+  transform: translate(-2px, -3px);
+}
+
+.btn-press:hover {
+  transform: translate(0, 0);
+  background: var(--accent-pale);
+}
+
+.btn-press:active {
+  transform: translate(2px, 2px);
+  box-shadow: 0 0 0 var(--accent-dark);
+}
+
+/*
+ * Z-INDEX STRATEGY
+ * ────────────────
+ * 0          body::before (animated background)
+ * 1          #home-screen (flex container, pointer-events: none)
+ *   1        #howto-btn (fixed, behind panel but above background)
+ *   2        #home-panel (relative, within home-screen)
+ *   10       #reopen-btn (relative, within home-screen)
+ * 100+       .window-frame (dynamic, incremented via state.nextZIndex in JS)
+ *   2-3      .map-pin (within map window, local stacking)
+ */
+
 /* ====== HOME SCREEN ====== */
 #home-screen {
   display: flex;
@@ -63,7 +122,7 @@ img { display: block; max-width: 100%; }
 }
 
 #home-panel {
-  max-width: 480px;
+  max-width: var(--panel-max-width);
   width: 100%;
   position: relative;
   z-index: 2;
@@ -89,7 +148,7 @@ img { display: block; max-width: 100%; }
 .flip-back {
   backface-visibility: hidden;
   background: var(--panel-bg);
-  border: 4px solid var(--shadow);
+  border: var(--border-thick) solid var(--shadow);
   box-shadow: 6px 6px 0 var(--shadow);
   overflow: hidden;
 }
@@ -109,7 +168,7 @@ img { display: block; max-width: 100%; }
   padding: clamp(16px, 3vw, 40px);
 }
 
-/* Reopen button */
+/* Reopen button — large centered button to bring back the home panel */
 #reopen-btn {
   font-family: var(--font-hand);
   font-size: clamp(1.8rem, 4vw, 2.8rem);
@@ -118,26 +177,17 @@ img { display: block; max-width: 100%; }
   text-transform: lowercase;
   color: var(--text-dark);
   background: var(--accent-light);
-  border: 4px solid var(--accent-dark);
+  border: var(--border-thick) solid var(--accent-dark);
   padding: 16px 36px;
   box-shadow: 6px 6px 0 var(--accent-dark);
   cursor: pointer;
-  transition: transform 0.1s, box-shadow 0.1s, background 0.1s;
-  transform: translate(-2px, -3px);
   z-index: 10;
   position: relative;
   pointer-events: auto;
 }
 
 #reopen-btn:hover {
-  transform: translate(0, 0);
   box-shadow: 3px 3px 0 var(--accent-dark);
-  background: var(--accent-pale);
-}
-
-#reopen-btn:active {
-  transform: translate(2px, 2px);
-  box-shadow: 0 0 0 var(--accent-dark);
 }
 
 #reopen-btn[hidden] { display: none; }
@@ -156,13 +206,11 @@ img { display: block; max-width: 100%; }
   height: 80px;
   border-radius: 50%;
   background: var(--accent-light);
-  border: 3px solid var(--accent-dark);
+  border: var(--border-thin) solid var(--accent-dark);
   color: var(--text-dark);
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: transform 0.1s, box-shadow 0.1s, background 0.1s;
-  transform: translate(-2px, -3px);
   box-shadow: 5px 5px 0 var(--accent-dark);
 }
 
@@ -179,14 +227,7 @@ img { display: block; max-width: 100%; }
 
 /* Hover = "pushed in" (flat) */
 .nav-btn:hover {
-  transform: translate(0, 0);
   box-shadow: 2px 2px 0 var(--accent-dark);
-  background: var(--accent-pale);
-}
-
-.nav-btn:active {
-  transform: translate(2px, 2px);
-  box-shadow: 0 0 0 var(--accent-dark);
 }
 
 /* ====== PORTRAIT (flip front) ====== */
@@ -194,7 +235,7 @@ img { display: block; max-width: 100%; }
   flex: 1;
   background: var(--accent-light);
   overflow: hidden;
-  border: 3px solid var(--shadow);
+  border: var(--border-thin) solid var(--shadow);
   cursor: pointer;
   min-height: 280px;
 }
@@ -220,7 +261,7 @@ img { display: block; max-width: 100%; }
 }
 
 #about-text::-webkit-scrollbar { width: 14px; }
-#about-text::-webkit-scrollbar-track { background: var(--accent-light); border-left: 3px solid var(--shadow); }
+#about-text::-webkit-scrollbar-track { background: var(--accent-light); border-left: var(--border-thin) solid var(--shadow); }
 #about-text::-webkit-scrollbar-thumb { background: var(--accent-dark); border: 2px solid var(--accent-light); }
 
 #about-bio {
@@ -276,15 +317,15 @@ img { display: block; max-width: 100%; }
 
 /* Back button in flip-back titlebar (mirrors .close-btn) */
 .back-btn {
-  width: 36px;
-  height: 36px;
+  width: var(--titlebar-size);
+  height: var(--titlebar-size);
   font-size: 1.6rem;
   font-weight: 900;
   color: var(--text-dark);
   display: flex;
   align-items: center;
   justify-content: center;
-  border-right: 3px solid var(--shadow);
+  border-right: var(--border-thin) solid var(--shadow);
   background: var(--accent-light);
   transition: background 0.08s;
   flex-shrink: 0;
@@ -307,7 +348,7 @@ img { display: block; max-width: 100%; }
   width: 640px;
   height: 480px;
   background: var(--panel-bg);
-  border: 4px solid var(--shadow);
+  border: var(--border-thick) solid var(--shadow);
   z-index: 100;
   display: flex;
   flex-direction: column;
@@ -344,9 +385,9 @@ img { display: block; max-width: 100%; }
   justify-content: space-between;
   background: var(--accent);
   padding: 0 0 0 12px;
-  min-height: 36px;
+  min-height: var(--titlebar-size);
   flex-shrink: 0;
-  border-bottom: 3px solid var(--shadow);
+  border-bottom: var(--border-thin) solid var(--shadow);
   cursor: grab;
   user-select: none;
 }
@@ -378,17 +419,17 @@ img { display: block; max-width: 100%; }
   height: 100%;
 }
 
-/* Close button: square at the end of titlebar, like reference */
+/* Close button: square at the end of titlebar */
 .close-btn {
-  width: 36px;
-  height: 36px;
+  width: var(--titlebar-size);
+  height: var(--titlebar-size);
   font-size: 1.4rem;
   font-weight: 900;
   color: var(--text-dark);
   display: flex;
   align-items: center;
   justify-content: center;
-  border-left: 3px solid var(--shadow);
+  border-left: var(--border-thin) solid var(--shadow);
   background: var(--accent-light);
   transition: background 0.08s;
 }
@@ -412,8 +453,8 @@ img { display: block; max-width: 100%; }
 }
 
 .window-content::-webkit-scrollbar { width: 18px; }
-.window-content::-webkit-scrollbar-track { background: var(--accent-light); border-left: 3px solid var(--shadow); }
-.window-content::-webkit-scrollbar-thumb { background: var(--accent-dark); border: 3px solid var(--accent-light); }
+.window-content::-webkit-scrollbar-track { background: var(--accent-light); border-left: var(--border-thin) solid var(--shadow); }
+.window-content::-webkit-scrollbar-thumb { background: var(--accent-dark); border: var(--border-thin) solid var(--accent-light); }
 
 /* ====== VIDEO / GAME CARDS — ICON VIEW ====== */
 .cards-grid {
@@ -429,7 +470,7 @@ img { display: block; max-width: 100%; }
   background: var(--accent);
   cursor: pointer;
   transition: transform 0.08s, box-shadow 0.08s;
-  border: 3px solid var(--shadow);
+  border: var(--border-thin) solid var(--shadow);
   box-shadow: 3px 3px 0 var(--shadow);
 }
 
@@ -460,7 +501,7 @@ img { display: block; max-width: 100%; }
   align-items: center;
   justify-content: center;
   overflow: hidden;
-  border-right: 3px solid var(--shadow);
+  border-right: var(--border-thin) solid var(--shadow);
 }
 
 /* Game cards: vertical */
@@ -476,7 +517,7 @@ img { display: block; max-width: 100%; }
   align-items: center;
   justify-content: center;
   overflow: hidden;
-  border-bottom: 3px solid var(--shadow);
+  border-bottom: var(--border-thin) solid var(--shadow);
 }
 
 .card-thumb img {
@@ -525,7 +566,7 @@ img { display: block; max-width: 100%; }
   align-self: stretch;
   flex-shrink: 0;
   border-bottom: none;
-  border-right: 3px solid var(--shadow);
+  border-right: var(--border-thin) solid var(--shadow);
 }
 
 .cards-column .card .card-info {
@@ -555,10 +596,10 @@ img { display: block; max-width: 100%; }
 
 /* External link indicator strip */
 .card-external {
-  width: 36px;
+  width: var(--titlebar-size);
   flex-shrink: 0;
   background: var(--accent-light);
-  border-left: 3px solid var(--shadow);
+  border-left: var(--border-thin) solid var(--shadow);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -632,7 +673,7 @@ img { display: block; max-width: 100%; }
   width: 40px;
   height: 40px;
   background: var(--accent);
-  border: 3px solid var(--accent-dark);
+  border: var(--border-thin) solid var(--accent-dark);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -685,28 +726,26 @@ img { display: block; max-width: 100%; }
   text-transform: lowercase;
   color: var(--text-dark);
   background: var(--accent-light);
-  border: 3px solid var(--accent-dark);
+  border: var(--border-thin) solid var(--accent-dark);
   padding: 8px 20px;
   box-shadow: 4px 4px 0 var(--accent-dark);
   cursor: pointer;
-  transition: transform 0.1s, box-shadow 0.1s, background 0.1s;
-  transform: translate(-2px, -3px);
   position: fixed;
   bottom: 10dvh;
   left: 50%;
-  translate: -50% 0;
+  transform: translate(calc(-50% - 2px), -3px);
   z-index: 1;
   pointer-events: auto;
 }
 
 #howto-btn:hover {
-  transform: translate(0, 0);
+  transform: translate(-50%, 0);
   box-shadow: 2px 2px 0 var(--accent-dark);
   background: var(--accent-pale);
 }
 
 #howto-btn:active {
-  transform: translate(1px, 1px);
+  transform: translate(calc(-50% + 2px), 2px);
   box-shadow: 0 0 0 var(--accent-dark);
 }
 
@@ -762,7 +801,7 @@ img { display: block; max-width: 100%; }
   position: absolute;
   inset: 0;
   backface-visibility: hidden;
-  border: 3px solid var(--shadow);
+  border: var(--border-thin) solid var(--shadow);
   box-shadow: 4px 4px 0 var(--shadow);
   overflow: hidden;
 }
@@ -876,4 +915,3 @@ img { display: block; max-width: 100%; }
     height: 110px;
   }
 }
-

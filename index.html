@@ -30,15 +30,15 @@
           </div>
           <div id="home-body">
             <nav id="nav-buttons">
-              <button class="nav-btn" id="btn-videos" aria-label="Videos" title="Videos">
+              <button class="nav-btn btn-press" id="btn-videos" aria-label="Videos" title="Videos">
                 <img class="btn-icon" src="" alt="">
                 <img class="btn-icon-hover" src="" alt="">
               </button>
-              <button class="nav-btn" id="btn-games" aria-label="Games" title="Games">
+              <button class="nav-btn btn-press" id="btn-games" aria-label="Games" title="Games">
                 <img class="btn-icon" src="" alt="">
                 <img class="btn-icon-hover" src="" alt="">
               </button>
-              <button class="nav-btn" id="btn-map" aria-label="Map" title="Map">
+              <button class="nav-btn btn-press" id="btn-map" aria-label="Map" title="Map">
                 <img class="btn-icon" src="" alt="">
                 <img class="btn-icon-hover" src="" alt="">
               </button>
@@ -71,7 +71,7 @@
     </div>
 
     <!-- Reopen button -->
-    <button id="reopen-btn" hidden>noan</button>
+    <button id="reopen-btn" class="btn-press" hidden>noan</button>
     <button id="howto-btn" hidden>how to</button>
   </div>
 
@@ -83,7 +83,7 @@
         <button class="close-btn" aria-label="Close" title="Close">&times;</button>
       </div>
     </div>
-    <div class="window-content" id="videos-content"></div>
+    <div class="window-content themed-scroll" id="videos-content"></div>
   </div>
 
   <!-- ====== GAMES WINDOW ====== -->
@@ -94,7 +94,7 @@
         <button class="close-btn" aria-label="Close" title="Close">&times;</button>
       </div>
     </div>
-    <div class="window-content" id="games-content"></div>
+    <div class="window-content themed-scroll" id="games-content"></div>
   </div>
 
   <!-- ====== MAP WINDOW ====== -->
@@ -105,7 +105,7 @@
         <button class="close-btn" aria-label="Close" title="Close">&times;</button>
       </div>
     </div>
-    <div class="window-content" id="map-content">
+    <div class="window-content themed-scroll" id="map-content">
       <div class="map-container">
         <img src="" alt="Map" class="map-bg">
       </div>
@@ -175,7 +175,7 @@
         <button class="close-btn" id="welcome-dismiss" aria-label="Close">&times;</button>
       </div>
     </div>
-    <div class="window-content welcome-content">
+    <div class="window-content themed-scroll welcome-content">
       <p>Drag any window by its title bar to move it around! You can close and reopen any window! Enjoy!</p>
     </div>
   </div>
