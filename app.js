@@ -85,17 +85,26 @@ document.addEventListener('DOMContentLoaded', async () => {
 function showWelcomeWindow() {
   const win = dom.welcomeWindow;
   win.hidden = false;
-  const w = 440, h = 160;
-  win.style.left = (window.innerWidth - w) / 2 + 'px';
-  win.style.top = (window.innerHeight - h) / 2 + 'px';
+  // Clear any prior inline position so the browser can measure the real size
+  win.style.left = '';
+  win.style.top = '';
   win.classList.add('dragged', 'open');
-  win.style.zIndex = state.nextZIndex++;
+  // Register in window system so Escape / click-to-focus work
+  state.openWindows.add('welcome-window');
+  bringToFront('welcome-window');
+  // Measure after layout, then center based on actual rendered size
+  const rect = win.getBoundingClientRect();
+  win.style.left = Math.max(8, (window.innerWidth - rect.width) / 2) + 'px';
+  win.style.top = Math.max(8, (window.innerHeight - rect.height) / 2) + 'px';
 }
 
 function dismissWelcome() {
   const win = dom.welcomeWindow;
   win.classList.remove('open');
   win.classList.add('closing');
+  state.openWindows.delete('welcome-window');
+  const idx = state.windowStack.indexOf('welcome-window');
+  if (idx !== -1) state.windowStack.splice(idx, 1);
   setTimeout(() => { win.hidden = true; win.classList.remove('closing'); }, ANIM_MS);
   dom.howtoBtn.hidden = false;
 }
@@ -371,6 +380,7 @@ function openWindow(id) {
 function closeWindowById(id, withSound = true) {
   if (!state.openWindows.has(id)) return;
   if (id.startsWith('window-player-')) { closePlayerById(id, withSound); return; }
+  if (id === 'welcome-window') { dismissWelcome(); return; }
 
   const win = document.getElementById(id);
   if (!win) return;
