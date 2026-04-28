@@ -829,15 +829,17 @@ function applyLang() {
  * ====== CUSTOM CURSOR ======
  * The visual cursor swap (normal ↔ click) is handled by CSS via the
  * `body.cursor-down` class. JS only toggles the class on mousedown/up.
- * The same mousedown handler also fires the global click-sound on every
- * click (including on empty/background areas), with randomized pitch to
- * avoid sounding mechanical on rapid clicks.
+ * The same mousedown handler fires the global click-sound, but only when
+ * the click hits empty/background area — interactive elements (buttons,
+ * portrait, pins, windows, etc.) have their own sounds and would otherwise
+ * double up. Pitch is randomized so rapid clicks don't sound mechanical.
  */
 function initCursor() {
-  document.addEventListener('mousedown', () => {
+  // Elements with their own click sound — skip globalClick to avoid doubling up.
+  const INTERACTIVE = 'button, a, .window-frame, .portrait-area, .map-pin, .pfp-gallery, .welcome-window';
+  document.addEventListener('mousedown', (e) => {
     document.body.classList.add('cursor-down');
-    // Global click sound fires on every mousedown — empty areas included.
-    // Randomized pitch (±15%) so repeated clicks don't sound mechanical.
+    if (e.target.closest(INTERACTIVE)) return;
     playSound('globalClick', { pitch: 0.85 + Math.random() * 0.3 });
   });
   const release = () => document.body.classList.remove('cursor-down');
