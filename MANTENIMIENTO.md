@@ -66,8 +66,10 @@ noan/
 ├── MANTENIMIENTO.md    ← Este archivo
 └── assets/
     ├── favicon.png
+    ├── cursor/                   ← cursor personalizado (normal.svg, click.svg)
     ├── icons/
     │   ├── noan.png              ← retrato principal
+    │   ├── noan-hover.png        ← retrato al pasar el ratón
     │   ├── btn-*.png             ← botones de navegación (videos/games/map)
     │   └── map/                  ← mapa + pins de redes sociales
     ├── pfps/                     ← galería de fotos del reverso (1.webp, 2.webp, …)
@@ -122,16 +124,25 @@ Cada juego necesita **1 thumbnail + 1 entrada en `data.json`**.
 **1. Sube el thumbnail:**
 - `assets/thumbnails/mi-juego.png`
 
-**2. Añade el juego a `data.json`** dentro de `games`:
+**2. Añade el juego a `data.json`** dentro de `games`. La descripción y el rol son objetos con una entrada por idioma:
 ```json
 {
   "id": "mi-juego",
   "title": "Mi juego",
-  "description": "Breve descripción",
-  "role": "Mi rol en el proyecto",
+  "description": {
+    "en": "Short description",
+    "es": "Breve descripción",
+    "fr": "Brève description"
+  },
+  "role": {
+    "en": "My role",
+    "es": "Mi rol",
+    "fr": "Mon rôle"
+  },
   "itchUrl": "https://link-a-itch.io/..."
 }
 ```
+> Si te falta una traducción, usa el mismo texto en otro idioma (mejor que dejarlo vacío). El `title` es nombre propio del juego, no se traduce.
 
 ### ✏️ Modificar / ❌ Borrar un juego
 Igual que con los videos: editar el objeto en `data.json`, o borrarlo del array y borrar el thumbnail.
@@ -141,21 +152,26 @@ Igual que con los videos: editar el objeto en `data.json`, o borrarlo del array 
 ## ABOUT (bio)
 
 ### ✏️ Cambiar el texto de la bio
-Editar `data.json` → `about.bio`.
+La bio es un objeto con una entrada por idioma. Editar `data.json` → `about.bio.en` / `.es` / `.fr`.
 
-Dentro del texto se pueden usar estos marcadores que se convierten en links:
+Dentro del texto se pueden usar estos marcadores que se convierten en links (la palabra entre llaves es siempre la misma — `{showreels}`, `{game jams}`, `{map}` — el texto que se muestra se traduce automáticamente según el idioma activo):
 - `{showreels}` → link que abre la ventana de videos
 - `{game jams}` → link que abre la ventana de juegos
-- `{map}` → link que abre el mapa social
+- `{map}` → link que abre el mapa social (se muestra como "map" / "mapa" / "carte")
 - `{email:tu@mail.com}` → link `mailto:`
 
 Ejemplo:
-```
-"bio": "Soy Noan, compositor... Check out my {showreels} and {game jams} to listen to my work! Contact me via {map} or email at {email:nooanmusic@gmail.com} :)"
+```json
+"bio": {
+  "en": "My name is Noan... Check out my {showreels} and {game jams}! Email me at {email:nooanmusic@gmail.com}",
+  "es": "Soy Noan... Echale un vistazo a mis {showreels} y {game jams}! Mail: {email:nooanmusic@gmail.com}",
+  "fr": "Je m'appelle Noan... Jetez un œil a mes {showreels} et {game jams} ! Mail : {email:nooanmusic@gmail.com}"
+}
 ```
 
 ### ✏️ Cambiar el retrato
-Reemplazar `assets/icons/noan.png` manteniendo el mismo nombre.
+- Versión normal: reemplaza `assets/icons/noan.png` (mismo nombre).
+- Versión hover (al pasar el ratón): reemplaza `assets/icons/noan-hover.png` (mismo nombre).
 
 ---
 
@@ -244,8 +260,61 @@ Si algo falla, aparece un `console.warn` claro en el navegador.
 - `openGames` / `closeGames` — abrir/cerrar ventana de juegos
 - `openMap` / `closeMap` — abrir/cerrar mapa
 - `openPlayer` / `closePlayer` — abrir/cerrar reproductor
-- `hoverVideos` / `hoverGames` / `hoverMap` / `hoverPin` — hover sobre elementos
-- `changeView` / `flipHome*` / `flipPfp*` — transiciones
+- `openWelcome` / `closeWelcome` — abrir/cerrar ventana "How To"
+- `hoverVideos` / `hoverGames` / `hoverMap` / `hoverPin` / `hoverHome` — hover sobre elementos
+- `clickPin` — click en un pin del mapa
+- `changeView` / `flipHome*` / `flipPfp*` — transiciones (flip del retrato, etc.)
+- `globalClick` — sonido global que suena en CADA click (con pitch aleatorio para no ser repetitivo)
+
+---
+
+## CURSOR PERSONALIZADO
+
+El cursor del ratón es un SVG personalizado con dos estados (normal y al hacer click).
+
+### ✏️ Cambiar el dibujo del cursor
+Reemplaza:
+- `assets/cursor/normal.svg` ← cursor en reposo
+- `assets/cursor/click.svg` ← cursor mientras se pulsa el botón
+
+Dentro del SVG, fíjate en el atributo `width=` y `height=` (sale en la primera línea, ej. `width="48"`). Cuanto más grande, más grande se ve el cursor. Tope del navegador: 128×128.
+
+### ✏️ Cambiar el "hotspot" (el punto donde clica el cursor)
+En `style.css`, busca:
+```css
+body { cursor: url('assets/cursor/normal.svg') 16 16, auto; }
+body.cursor-down { cursor: url('assets/cursor/click.svg') 16 16, auto; }
+```
+Los dos números (`16 16`) son las coordenadas X,Y de la "punta" del cursor dentro del dibujo. Si el cursor parece descuadrado al clicar (clica al lado de donde apunta), ajusta esos números.
+
+---
+
+## IDIOMAS / TRADUCCIONES
+
+La web está en **EN / ES / FR**, con un botón abajo a la derecha que cicla entre los tres. El idioma por defecto se detecta del navegador del usuario (si tiene el navegador en español → ES, en francés → FR, resto → EN). La elección manual se recuerda con `localStorage`.
+
+### ✏️ Editar las traducciones
+- **Bio** → `data.json` → `about.bio.en` / `.es` / `.fr`
+- **Descripciones de juegos y rol** → `data.json` → cada juego tiene `description.{lang}` y `role.{lang}`
+- **Strings de UI** (títulos de ventana, botones, mensaje "How to") → `data.json` → `i18n.{lang}.{key}`
+
+### ➕ Añadir un idioma nuevo (ej. italiano `it`)
+1. En `app.js`, busca la línea `const SUPPORTED_LANGS = ['en', 'es', 'fr'];` y añade el nuevo código: `['en', 'es', 'fr', 'it']`.
+2. En `data.json` → `i18n` añade un bloque `"it": { ... }` con todas las claves traducidas (puedes copiar el bloque `en` y traducir uno a uno).
+3. En `data.json` → `about.bio` añade `"it": "..."`.
+4. En cada juego, añade `description.it` y `role.it`.
+
+Si te dejas una traducción, el sistema cae automáticamente al inglés en ese campo (no se rompe nada).
+
+### Strings de UI traducibles
+| Clave | Dónde aparece |
+|---|---|
+| `windowAbout` / `windowVideos` / `windowGames` / `windowMap` / `windowHowTo` | Títulos de las ventanas |
+| `btnReopen` | Botón "noan" cuando cierras la ventana principal |
+| `btnHowto` | Botón "how to" cuando cierras la ventana de bienvenida |
+| `welcome` | Texto del cartel de bienvenida |
+| `creditsDrawings` / `creditsWeb` | Prefijos de los créditos del reverso |
+| `linkShowreels` / `linkGameJams` / `linkMap` | Etiqueta de los links dentro de la bio |
 
 ---
 
