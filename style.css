@@ -444,6 +444,13 @@ img { display: block; max-width: 100%; }
   transform: none !important;
 }
 
+/* Focus is moved here programmatically on open (see openWindow/openPlayer in
+   app.js) purely to reposition the user's tab sequence — it's not a visible
+   focus indicator, so suppress the default outline. Buttons/cards keep theirs. */
+.window-frame:focus {
+  outline: none;
+}
+
 .window-title {
   font-family: var(--font-hand);
   font-size: 1.1rem;
@@ -993,5 +1000,36 @@ img { display: block; max-width: 100%; }
   .pfp-flipper {
     width: 110px;
     height: 110px;
+  }
+}
+
+/* ====== REDUCED MOTION ======
+ * Disable the infinite decorative background scroll and shorten the larger
+ * decorative transitions (home flip, pfp flip, window pop-in/pop-out) to
+ * near-instant. Windows still open/close normally: closeWindowById/
+ * closePlayerById rely on a setTimeout(ANIM_MS) in app.js, not on the
+ * animationend event, so removing/shortening the animation doesn't break
+ * that logic — the frame is simply hidden/removed a beat after it
+ * visually disappears. */
+@media (prefers-reduced-motion: reduce) {
+  body::before {
+    animation: none;
+  }
+
+  .flip-container {
+    transition-duration: 0.01ms;
+  }
+
+  .pfp-flipper,
+  .pfp-flipper.flip-reverse {
+    transition-duration: 0.01ms;
+  }
+
+  .window-frame.open {
+    animation-duration: 0.01ms;
+  }
+
+  .window-frame.closing {
+    animation-duration: 0.01ms;
   }
 }

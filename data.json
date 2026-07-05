@@ -1,6 +1,5 @@
 {
   "assets": {
-    "favicon": "assets/favicon.png",
     "mapBackground": "assets/icons/map/map.png",
     "thumbnailDir": "assets/thumbnails",
     "videoDir": "assets/videos",
@@ -10,11 +9,7 @@
       "games":  { "icon": "assets/icons/btn-games.png",  "iconHover": "assets/icons/btn-games-hover.png" },
       "map":    { "icon": "assets/icons/btn-map.png",    "iconHover": "assets/icons/btn-map-hover.png" }
     },
-    "portraitHover": "assets/icons/noan-hover.png",
-    "cursor": {
-      "normal": "assets/cursor/normal.svg",
-      "click": "assets/cursor/click.svg"
-    }
+    "portraitHover": "assets/icons/noan-hover.png"
   },
   "theme": {
     "bg": "#c8c0a8",

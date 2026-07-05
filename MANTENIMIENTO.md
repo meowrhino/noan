@@ -2,7 +2,7 @@
 
 Guía paso a paso para añadir, modificar o borrar contenido de la web sin tocar código.
 
-**Regla de oro:** todo se hace en **`data.json`** y archivos dentro de **`assets/`**. El código (`index.html`, `style.css`, `app.js`) no hay que tocarlo nunca.
+**Regla de oro:** todo se hace en **`data.json`** y archivos dentro de **`assets/`**. El código (`index.html`, `style.css`, la carpeta `js/`) no hay que tocarlo nunca.
 
 ---
 
@@ -10,7 +10,7 @@ Guía paso a paso para añadir, modificar o borrar contenido de la web sin tocar
 
 ### Qué tocar y qué NO tocar
 - ✅ **Sí puedes tocar:** `data.json`, los archivos dentro de `assets/` (imágenes, vídeos, sonidos)
-- ❌ **Mejor no toques:** `index.html`, `style.css`, `app.js` (si no sabes qué estás haciendo, se puede romper algo)
+- ❌ **Mejor no toques:** `index.html`, `style.css`, la carpeta `js/` (si no sabes qué estás haciendo, se puede romper algo)
 - Si tocas algo por error, **no guardes**, cierra sin guardar y vuelve a abrir
 
 ### La web necesita un servidor para funcionar en local
@@ -24,11 +24,15 @@ python3 -m http.server 8090
 ### Formatos de imagen/vídeo
 - **Imágenes:** preferiblemente `.webp` (más ligero que PNG/JPG). Tamaño recomendado 1000–2000px de ancho, peso < 300 KB.
 - **Vídeos del showreel:** `.webm` con codec VP9. Sin audio si son miniaturas.
-- **Thumbnails de videos/juegos:** `.png` transparente.
+- **Thumbnails de videos/juegos:** `.webp`.
 
 ### Caché del navegador
 Si cambias algo y al abrir la web sigues viendo lo viejo: es la caché.
 **Refrescar con Ctrl+F5** (Windows) o **Cmd+Shift+R** (Mac).
+
+Si eso no basta (a veces pasa cuando solo cambias `data.json`), puedes forzar que todo el mundo vea la versión nueva: abre `index.html` y busca `style.css?v=2` y `js/main.js?v=2`, y en `js/render.js` busca `data.json?v=2`. Sube ese número (por ejemplo de `2` a `3`) en esos sitios a la vez. Es solo un "número de versión" que engaña a la caché del navegador para que descargue el archivo de nuevo; no tiene ningún otro efecto.
+
+> **Sobre los archivos de la carpeta `js/`:** el código está partido en varios archivos (`js/main.js`, `js/state.js`, etc.) que se llaman entre sí. Esas llamadas internas **no llevan** el `?v=2`. El único sitio donde se sube la versión del código es en `index.html`, en la línea `js/main.js?v=2`. Con subir ese número (y el de `style.css`) es suficiente para que se refresque todo el código.
 
 ---
 
@@ -58,7 +62,14 @@ En pocos minutos GitHub Pages refresca la web automáticamente.
 noan/
 ├── index.html          ← Estructura (no tocar)
 ├── style.css           ← Estilos (no tocar)
-├── app.js              ← Lógica (no tocar)
+├── js/                 ← Lógica, partida en módulos (no tocar)
+│   ├── main.js         ← Arranque + botones/eventos + cursor (es el que carga index.html)
+│   ├── state.js        ← Estado global, referencias al DOM, rutas de archivos
+│   ├── sound.js        ← Carga y reproducción de sonidos
+│   ├── i18n.js         ← Idiomas (EN/ES/FR) y traducciones
+│   ├── render.js       ← Carga de data.json, tema, y dibujado de contenido
+│   ├── windows.js      ← Sistema de ventanas (abrir/cerrar, reproductor, "How To")
+│   └── drag.js         ← Arrastrar ventanas por la barra de título
 ├── data.json           ← ⭐ El archivo que sí hay que tocar
 ├── robots.txt          ← Indexación buscadores
 ├── sitemap.xml         ← Mapa para Google
@@ -90,7 +101,7 @@ Imagina que se llama **"Mi Video"** y su identificador (id) va a ser **`mi-video
 
 **1. Sube los 2 archivos** con estos nombres exactos:
 - `assets/videos/mi-video.webm` → el video completo
-- `assets/thumbnails/mi-video.png` → miniatura que aparece en la card
+- `assets/thumbnails/mi-video.webp` → miniatura que aparece en la card
 
 **2. Añade el video a `data.json`** dentro de `videos`:
 ```json
@@ -122,7 +133,7 @@ Cada juego necesita **1 thumbnail + 1 entrada en `data.json`**.
 ### ➕ Añadir un juego nuevo
 
 **1. Sube el thumbnail:**
-- `assets/thumbnails/mi-juego.png`
+- `assets/thumbnails/mi-juego.webp`
 
 **2. Añade el juego a `data.json`** dentro de `games`. La descripción y el rol son objetos con una entrada por idioma:
 ```json
@@ -299,7 +310,7 @@ La web está en **EN / ES / FR**, con un botón abajo a la derecha que cicla ent
 - **Strings de UI** (títulos de ventana, botones, mensaje "How to") → `data.json` → `i18n.{lang}.{key}`
 
 ### ➕ Añadir un idioma nuevo (ej. italiano `it`)
-1. En `app.js`, busca la línea `const SUPPORTED_LANGS = ['en', 'es', 'fr'];` y añade el nuevo código: `['en', 'es', 'fr', 'it']`.
+1. En `js/state.js`, busca la línea `export const SUPPORTED_LANGS = ['en', 'es', 'fr'];` y añade el nuevo código: `['en', 'es', 'fr', 'it']`. (También conviene añadirlo en la lista `supported` del pequeño script que hay dentro de `index.html`, en la cabecera.)
 2. En `data.json` → `i18n` añade un bloque `"it": { ... }` con todas las claves traducidas (puedes copiar el bloque `en` y traducir uno a uno).
 3. En `data.json` → `about.bio` añade `"it": "..."`.
 4. En cada juego, añade `description.it` y `role.it`.

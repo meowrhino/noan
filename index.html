@@ -17,6 +17,8 @@
   <meta property="og:image" content="https://noancittadino.com/assets/icons/noan.png">
   <meta property="og:site_name" content="Noan Cittadino">
   <meta property="og:locale" content="en_US">
+  <meta property="og:locale:alternate" content="es_ES">
+  <meta property="og:locale:alternate" content="fr_FR">
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="Noan Cittadino — Audio / Game Audio">
   <meta name="twitter:description" content="Composer, Producer & Sound Designer specialising in game audio.">
@@ -46,11 +48,11 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@400;700;900&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="style.css?v=2">
   <script>
     // Set <html lang> synchronously before the body renders so the browser
     // translation prompt doesn't appear when the resolved language differs
-    // from the static "en" attribute. Mirrors detectInitialLang() in app.js.
+    // from the static "en" attribute. Mirrors detectInitialLang() in js/state.js.
     (function () {
       var supported = ['en', 'es', 'fr'];
       var lang = 'en';
@@ -132,9 +134,9 @@
   </div>
 
   <!-- ====== VIDEOS WINDOW ====== -->
-  <div class="window-frame" id="window-videos" hidden>
+  <div class="window-frame" id="window-videos" hidden tabindex="-1" role="dialog" aria-labelledby="window-videos-title">
     <div class="window-titlebar">
-      <span class="window-title" data-i18n="windowVideos">Videos</span>
+      <span class="window-title" id="window-videos-title" data-i18n="windowVideos">Videos</span>
       <div class="titlebar-controls">
         <button class="close-btn" aria-label="Close" title="Close">&times;</button>
       </div>
@@ -143,9 +145,9 @@
   </div>
 
   <!-- ====== GAMES WINDOW ====== -->
-  <div class="window-frame" id="window-games" hidden>
+  <div class="window-frame" id="window-games" hidden tabindex="-1" role="dialog" aria-labelledby="window-games-title">
     <div class="window-titlebar">
-      <span class="window-title" data-i18n="windowGames">Games</span>
+      <span class="window-title" id="window-games-title" data-i18n="windowGames">Games</span>
       <div class="titlebar-controls">
         <button class="close-btn" aria-label="Close" title="Close">&times;</button>
       </div>
@@ -154,9 +156,9 @@
   </div>
 
   <!-- ====== MAP WINDOW ====== -->
-  <div class="window-frame" id="window-map" hidden>
+  <div class="window-frame" id="window-map" hidden tabindex="-1" role="dialog" aria-labelledby="window-map-title">
     <div class="window-titlebar">
-      <span class="window-title" data-i18n="windowMap">Map</span>
+      <span class="window-title" id="window-map-title" data-i18n="windowMap">Map</span>
       <div class="titlebar-controls">
         <button class="close-btn" aria-label="Close" title="Close">&times;</button>
       </div>
@@ -205,7 +207,7 @@
 
   <!-- Player window -->
   <template id="tpl-player-window">
-    <div class="window-frame player-window">
+    <div class="window-frame player-window" tabindex="-1" role="dialog">
       <div class="window-titlebar">
         <span class="window-title"></span>
         <div class="titlebar-controls">
@@ -224,9 +226,9 @@
   </template>
 
   <!-- ====== WELCOME WINDOW (shown on load) ====== -->
-  <div class="window-frame" id="welcome-window" hidden>
+  <div class="window-frame" id="welcome-window" hidden tabindex="-1" role="dialog" aria-labelledby="welcome-window-title">
     <div class="window-titlebar">
-      <span class="window-title" data-i18n="windowHowTo">How To</span>
+      <span class="window-title" id="welcome-window-title" data-i18n="windowHowTo">How To</span>
       <div class="titlebar-controls">
         <button class="close-btn" id="welcome-dismiss" aria-label="Close">&times;</button>
       </div>
@@ -236,6 +238,6 @@
     </div>
   </div>
 
-  <script src="app.js"></script>
+  <script type="module" src="js/main.js?v=2"></script>
 </body>
 </html>
