@@ -1,16 +1,6 @@
 {
-  "assets": {
-    "mapBackground": "assets/icons/map/map.png",
-    "thumbnailDir": "assets/thumbnails",
-    "videoDir": "assets/videos",
-    "mapIconDir": "assets/icons/map",
-    "navButtons": {
-      "videos": { "icon": "assets/icons/btn-videos.png", "iconHover": "assets/icons/btn-videos-hover.png" },
-      "games":  { "icon": "assets/icons/btn-games.png",  "iconHover": "assets/icons/btn-games-hover.png" },
-      "map":    { "icon": "assets/icons/btn-map.png",    "iconHover": "assets/icons/btn-map-hover.png" }
-    },
-    "portraitHover": "assets/icons/noan-hover.png"
-  },
+  "$schema": "../schema/site.json",
+  "url": "https://noancittadino.com",
   "theme": {
     "bg": "#c8c0a8",
     "panelBg": "#3d3532",
@@ -34,61 +24,6 @@
       "fr": "Je m'appelle Noan et je suis compositeur, producteur musical et sound designer, né à Barcelone et installé a Bristol, UK. Les jeux vidéo m'ont accompagné depuis mon enfance, et j'ai toujours ressenti qu'il y a une profondeur dans la musique des jeux vidéo qui est unique au format non linéaire, et cet intérêt est devenu ma passion. Je suis diplômé en musique commerciale de Bath Spa University.\n\nMa musique a toujours eu un caractère éclectique. Mes références musicales incluent une multitude de styles et de genres, ce qui ce reflète dans ma propre musique et m'a conduit vers la composition de bandes originales. J'ai travaillé principalement sur des compositions électroniques et orchestrales, et j'ai également de l'expérience en studio d'enregistrement, aussi bien en solo qu'en groupe. J'ai de l'experience avec FMOD et Wwise comme middleware d'implementation d'audio. Je m'inspire principalement de l'atmosphère et la partie visuelle d'un projet; cependant, je suis particulièrement passionné par les approches non linéaires qui guident mon processus de composition. Je crois fermement que un système de musique dynamique est fondamental pour élever la bande son d'un jeu video (J'ai d'ailleurs rédigé mon travail de fin d'études sur ce sujet !) Jetez un œil a mes {showreels} et {game jams} pour découvrir mon travail !\n\nSi vous avez des questions ou souhaitez collaborer, voici une {map} de mes réseaux sociaux où vous pouvez me contacter à l'adresse suivante: {email:nooanmusic@gmail.com} :)"
     }
   },
-  "videos": [
-    { "id": "crypt-necrodancer", "title": "Crypt of the Necrodancer Re-Composition" },
-    { "id": "detroit",           "title": "Detroit Become Human Re-Composition" },
-    { "id": "empire-ants",       "title": "Empire of the Ants Trailer Re-Composition" },
-    { "id": "hilda",             "title": "Hilda Scene Re-Composition" },
-    { "id": "mario-kart",        "title": "Mario Kart 8 Electrodome Re-Composition" }
-  ],
-  "games": [
-    {
-      "id": "strange-realm",
-      "title": "Strange Realm",
-      "description": {
-        "en": "Made for Brackeys Game Jam 2026.1 by a team of 4 people in 6 days.",
-        "es": "Hecho para Brackey's Game Jam 2026.1 por un equipo de 4 personas en 6 días.",
-        "fr": "Fait pour la Brackeys Game Jam 2026.1 par une équipe de 4 personnes en 6 jours."
-      },
-      "role": {
-        "en": "Audio department: Music, SFX and FMOD Implementation.",
-        "es": "Departamento de Audio: Música, SFX y implementación con FMOD.",
-        "fr": "Département audio: Musique, Son et implémentation avec FMOD."
-      },
-      "itchUrl": "https://code-gremlins.itch.io/strange-realm"
-    },
-    {
-      "id": "fmod-test",
-      "title": "Nooan's FMOD Test Project",
-      "description": {
-        "en": "A short game I made to teach myself how to use FMOD.",
-        "es": "Un juego corto hecho por mi para aprender FMOD.",
-        "fr": "Un jeu court fait par moi pour apprendre FMOD."
-      },
-      "role": {
-        "en": "Game Dev, Music and FMOD Implementation.",
-        "es": "Desarrollo, música e implementación con FMOD.",
-        "fr": "Développement, musique et implémentation avec FMOD."
-      },
-      "itchUrl": "https://nooanmusic.itch.io/nooans-fmod-test-project"
-    },
-    {
-      "id": "ups",
-      "title": "UPS (Ultimate Parcel Serpent)",
-      "description": {
-        "en": "A snake-inspired parcel delivery game.",
-        "es": "Un juego sobre un dragón que entrega correos.",
-        "fr": "Un jeu sur un dragon qui livre du courrier."
-      },
-      "role": {
-        "en": "FMOD Implementation (music and audio not mine!).",
-        "es": "Implementación con FMOD (música y sonido no hechos por mí!).",
-        "fr": "Implémentation avec FMOD (la musique et le son ne sont pas à moi !)."
-      },
-      "itchUrl": "https://exorion.itch.io/ultimate-parcel-serpent"
-    }
-  ],
-  "_soundEffectsGuide": "Each key below maps an interaction to an MP3 file in assets/sounds/. To change a sound, replace the MP3 file or update the path. Multiple keys can share the same file. To add a new sound: add the MP3 to assets/sounds/ and add a key here. If a key is missing or the file path is wrong, you'll see a warning in the browser console.",
   "soundEffects": {
     "openHome": "assets/sounds/open-noan.mp3",
     "closeHome": "assets/sounds/close-noan.mp3",
@@ -115,7 +50,6 @@
     "flipPfpBack": "assets/sounds/flip-foto-back.mp3",
     "globalClick": "assets/sounds/click-sound.mp3"
   },
-  "_i18nGuide": "UI strings per language. Bios and game descriptions are translated inline in their own objects (about.bio, games[*].description, games[*].role). To add a new language: add a code (e.g. 'de') and translate every key here, plus add the same code to about.bio and every game description/role.",
   "i18n": {
     "en": {
       "windowAbout": "About",
@@ -164,11 +98,85 @@
     }
   },
   "social": [
-    { "id": "instagram",  "label": "Instagram",  "url": "https://www.instagram.com/nooanishere/",                "icon": "instagram",  "mapX": 28, "mapY": 55 },
-    { "id": "linkedin",   "label": "LinkedIn",   "url": "https://www.linkedin.com/in/noan-cittadino-290587263/", "icon": "linkedin",   "mapX": 68, "mapY": 22 },
-    { "id": "itch",       "label": "Itch.io",    "url": "https://nooanmusic.itch.io/",                          "icon": "itch",       "mapX": 52, "mapY": 72 },
-    { "id": "soundcloud", "label": "SoundCloud", "url": "https://soundcloud.com/noan-cittadino-110819025",      "icon": "soundcloud", "mapX": 76, "mapY": 38 },
-    { "id": "discord",    "label": "Discord",    "url": "https://discordapp.com/users/279749448790310913",      "icon": "discord",    "mapX": 22, "mapY": 28 },
-    { "id": "email",      "label": "Email",      "url": "mailto:nooanmusic@gmail.com",                          "icon": "email",      "mapX": 48, "mapY": 44 }
-  ]
+    {
+      "id": "instagram",
+      "label": "Instagram",
+      "url": "https://www.instagram.com/nooanishere/",
+      "icon": "instagram",
+      "mapX": 28,
+      "mapY": 55
+    },
+    {
+      "id": "linkedin",
+      "label": "LinkedIn",
+      "url": "https://www.linkedin.com/in/noan-cittadino-290587263/",
+      "icon": "linkedin",
+      "mapX": 68,
+      "mapY": 22
+    },
+    {
+      "id": "itch",
+      "label": "Itch.io",
+      "url": "https://nooanmusic.itch.io/",
+      "icon": "itch",
+      "mapX": 52,
+      "mapY": 72
+    },
+    {
+      "id": "soundcloud",
+      "label": "SoundCloud",
+      "url": "https://soundcloud.com/noan-cittadino-110819025",
+      "icon": "soundcloud",
+      "mapX": 76,
+      "mapY": 38
+    },
+    {
+      "id": "discord",
+      "label": "Discord",
+      "url": "https://discordapp.com/users/279749448790310913",
+      "icon": "discord",
+      "mapX": 22,
+      "mapY": 28
+    },
+    {
+      "id": "email",
+      "label": "Email",
+      "url": "mailto:nooanmusic@gmail.com",
+      "icon": "email",
+      "mapX": 48,
+      "mapY": 44
+    }
+  ],
+  "assets": {
+    "mapBackground": "assets/icons/map/map.png",
+    "navButtons": {
+      "videos": {
+        "icon": "assets/icons/btn-videos.png",
+        "iconHover": "assets/icons/btn-videos-hover.png"
+      },
+      "games": {
+        "icon": "assets/icons/btn-games.png",
+        "iconHover": "assets/icons/btn-games-hover.png"
+      },
+      "map": {
+        "icon": "assets/icons/btn-map.png",
+        "iconHover": "assets/icons/btn-map-hover.png"
+      }
+    },
+    "portraitHover": "assets/icons/noan-hover.png"
+  },
+  "lists": {
+    "videos": [
+      "crypt-necrodancer",
+      "detroit",
+      "empire-ants",
+      "hilda",
+      "mario-kart"
+    ],
+    "games": [
+      "strange-realm",
+      "fmod-test",
+      "ups"
+    ]
+  }
 }

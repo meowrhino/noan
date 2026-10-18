@@ -12,16 +12,16 @@
 import { state, dom, thumbPath, videoPath, mapIconPath } from './state.js';
 import { playSound } from './sound.js';
 import { t } from './i18n.js';
+import { loadData as loadSite } from './carga.js';
 
 /* ====== DATA LOADING ====== */
 export async function loadData() {
   try {
-    const res = await fetch('data.json?v=2');
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    state.data = await res.json();
+    state.data = await loadSite();
   } catch (e) {
-    console.error('Failed to load data.json', e);
-    document.body.innerHTML = '<p style="padding:2rem;text-align:center;font-family:system-ui;color:#3d3532">Failed to load. Please refresh.</p>';
+    console.error('Failed to load the data', e);
+    // en la vista previa, js/carga.js ya lo cuenta en pantalla, con el detalle
+    if (!document.getElementById('errores-vista-previa')) document.body.innerHTML = '<p style="padding:2rem;text-align:center;font-family:system-ui;color:#3d3532">Failed to load. Please refresh.</p>';
   }
 }
 

@@ -1,0 +1,166 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "data/site.json: la web",
+  "description": "data/site.json: lo general de la web y qué vídeos y juegos salen, en qué orden. VS Code lee este fichero (por el \"$schema\" de arriba del JSON) para autocompletar, explicar cada campo y subrayar lo que está mal; el build y la vista previa lo usan para revisar.",
+  "type": "object",
+  "required": [
+    "theme",
+    "about",
+    "soundEffects",
+    "i18n",
+    "social",
+    "assets",
+    "lists"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "$schema": {
+      "type": "string"
+    },
+    "_": {
+      "type": "string"
+    },
+    "url": {
+      "type": "string",
+      "pattern": "^https://",
+      "description": "El dominio, sin barra al final: \"https://noancittadino.com\"."
+    },
+    "theme": {
+      "type": "object",
+      "description": "Los colores (se aplican como variables CSS): bg, panelBg, accent, accentLight, accentDark, accentPale, mapLand, mapSea, textDark, textLight, shadow, playerBg.",
+      "additionalProperties": {
+        "type": "string",
+        "pattern": "^#([0-9a-fA-F]{3}|[0-9a-fA-F]{6})$"
+      }
+    },
+    "about": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "name",
+        "portrait",
+        "bio"
+      ],
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "portrait": {
+          "type": "string",
+          "description": "El retrato: \"assets/icons/noan.png\""
+        },
+        "bio": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "en"
+          ],
+          "properties": {
+            "en": {
+              "type": "string",
+              "description": "In English."
+            },
+            "es": {
+              "type": "string",
+              "description": "En castellano (si falta, sale el inglés)."
+            },
+            "fr": {
+              "type": "string",
+              "description": "En français (si falta, sale el inglés)."
+            }
+          },
+          "description": "La bio, por idioma. {showreels}, {game jams} y {map} abren esas ventanas; {email:tu@mail.com} es un enlace al correo."
+        }
+      }
+    },
+    "soundEffects": {
+      "type": "object",
+      "description": "Cada interacción → su mp3 en assets/sounds/: { \"openHome\": \"assets/sounds/open-noan.mp3\" }. Varias pueden compartir archivo.",
+      "additionalProperties": {
+        "type": "string"
+      }
+    },
+    "i18n": {
+      "type": "object",
+      "description": "Los textos de la interfaz, por idioma (en, es, fr). Si falta uno, sale el inglés.",
+      "additionalProperties": {
+        "type": "object",
+        "additionalProperties": {
+          "type": "string"
+        }
+      }
+    },
+    "social": {
+      "type": "array",
+      "description": "Las redes: los pines del mapa.",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "label",
+          "url",
+          "icon",
+          "mapX",
+          "mapY"
+        ],
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "label": {
+            "type": "string",
+            "description": "Lo que sale al pasar el ratón por el pin."
+          },
+          "url": {
+            "type": "string"
+          },
+          "icon": {
+            "type": "string",
+            "description": "El icono del pin, en assets/icons/map/, sin .png: \"instagram\""
+          },
+          "mapX": {
+            "type": "number",
+            "minimum": 0,
+            "description": "Posición horizontal en el mapa, de 0 (izquierda) a 100 (derecha)."
+          },
+          "mapY": {
+            "type": "number",
+            "minimum": 0,
+            "description": "Posición vertical, de 0 (arriba) a 100 (abajo)."
+          }
+        }
+      }
+    },
+    "assets": {
+      "type": "object",
+      "description": "Las imágenes de la interfaz: el fondo del mapa, los botones, el retrato al pasar el ratón."
+    },
+    "lists": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "videos",
+        "games"
+      ],
+      "properties": {
+        "videos": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "pattern": "^[a-z0-9-]+$"
+          },
+          "description": "Los vídeos, en orden: el nombre de su carpeta en projects/."
+        },
+        "games": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "pattern": "^[a-z0-9-]+$"
+          },
+          "description": "Los juegos, en orden: el nombre de su carpeta en projects/."
+        }
+      }
+    }
+  }
+}

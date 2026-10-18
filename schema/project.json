@@ -1,0 +1,70 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "projects/<nombre>/project.json: un vídeo o un juego",
+  "description": "projects/<nombre>/project.json: un vídeo (con video.webm y thumbnail.webp en la carpeta) o un juego (con thumbnail.webp). VS Code lee este fichero (por el \"$schema\" de arriba del JSON) para autocompletar, explicar cada campo y subrayar lo que está mal; el build y la vista previa lo usan para revisar.",
+  "type": "object",
+  "required": [
+    "title"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "$schema": {
+      "type": "string"
+    },
+    "_": {
+      "type": "string"
+    },
+    "title": {
+      "type": "string",
+      "description": "El título."
+    },
+    "description": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "en"
+      ],
+      "properties": {
+        "en": {
+          "type": "string",
+          "description": "In English."
+        },
+        "es": {
+          "type": "string",
+          "description": "En castellano (si falta, sale el inglés)."
+        },
+        "fr": {
+          "type": "string",
+          "description": "En français (si falta, sale el inglés)."
+        }
+      },
+      "description": "Los juegos: qué es, por idioma."
+    },
+    "role": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "en"
+      ],
+      "properties": {
+        "en": {
+          "type": "string",
+          "description": "In English."
+        },
+        "es": {
+          "type": "string",
+          "description": "En castellano (si falta, sale el inglés)."
+        },
+        "fr": {
+          "type": "string",
+          "description": "En français (si falta, sale el inglés)."
+        }
+      },
+      "description": "Los juegos: qué hizo Noan, por idioma."
+    },
+    "itchUrl": {
+      "type": "string",
+      "description": "Los juegos: su página en itch.io."
+    }
+  }
+}

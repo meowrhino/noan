@@ -49,18 +49,15 @@ export const state = {
 // ANIM_MS must match the CSS pop-in/pop-out animation duration (0.15s).
 export const ANIM_MS = 150;
 
-/* ====== ASSET PATHS (derived from id, dirs from data.json) ====== */
+/* ====== ASSET PATHS (derived from id: each video and game has its folder in projects/) ====== */
 export function thumbPath(id) {
-  const dir = state.data?.assets?.thumbnailDir || 'assets/thumbnails';
-  return `${dir}/${id}.webp`;
+  return `projects/${id}/thumbnail.webp`;
 }
 export function videoPath(id) {
-  const dir = state.data?.assets?.videoDir || 'assets/videos';
-  return `${dir}/${id}.webm`;
+  return `projects/${id}/video.webm`;
 }
 export function mapIconPath(icon) {
-  const dir = state.data?.assets?.mapIconDir || 'assets/icons/map';
-  return `${dir}/${icon}.png`;
+  return `assets/icons/map/${icon}.png`;
 }
 
 /* ====== DOM REFS ====== */

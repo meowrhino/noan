@@ -1,0 +1,15 @@
+{
+  "$schema": "../../schema/project.json",
+  "title": "UPS (Ultimate Parcel Serpent)",
+  "description": {
+    "en": "A snake-inspired parcel delivery game.",
+    "es": "Un juego sobre un dragón que entrega correos.",
+    "fr": "Un jeu sur un dragon qui livre du courrier."
+  },
+  "role": {
+    "en": "FMOD Implementation (music and audio not mine!).",
+    "es": "Implementación con FMOD (música y sonido no hechos por mí!).",
+    "fr": "Implémentation avec FMOD (la musique et le son ne sont pas à moi !)."
+  },
+  "itchUrl": "https://exorion.itch.io/ultimate-parcel-serpent"
+}

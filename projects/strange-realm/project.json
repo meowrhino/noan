@@ -1,0 +1,15 @@
+{
+  "$schema": "../../schema/project.json",
+  "title": "Strange Realm",
+  "description": {
+    "en": "Made for Brackeys Game Jam 2026.1 by a team of 4 people in 6 days.",
+    "es": "Hecho para Brackey's Game Jam 2026.1 por un equipo de 4 personas en 6 días.",
+    "fr": "Fait pour la Brackeys Game Jam 2026.1 par une équipe de 4 personnes en 6 jours."
+  },
+  "role": {
+    "en": "Audio department: Music, SFX and FMOD Implementation.",
+    "es": "Departamento de Audio: Música, SFX y implementación con FMOD.",
+    "fr": "Département audio: Musique, Son et implémentation avec FMOD."
+  },
+  "itchUrl": "https://code-gremlins.itch.io/strange-realm"
+}

@@ -1,0 +1,15 @@
+{
+  "$schema": "../../schema/project.json",
+  "title": "Nooan's FMOD Test Project",
+  "description": {
+    "en": "A short game I made to teach myself how to use FMOD.",
+    "es": "Un juego corto hecho por mi para aprender FMOD.",
+    "fr": "Un jeu court fait par moi pour apprendre FMOD."
+  },
+  "role": {
+    "en": "Game Dev, Music and FMOD Implementation.",
+    "es": "Desarrollo, música e implementación con FMOD.",
+    "fr": "Développement, musique et implémentation avec FMOD."
+  },
+  "itchUrl": "https://nooanmusic.itch.io/nooans-fmod-test-project"
+}
