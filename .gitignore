@@ -1,6 +1,7 @@
 .DS_Store
 .claude/
-.vscode/
+.vscode/*
+!.vscode/settings.json
 
 node_modules/
 # La web generada: la escribe node build/build.mjs y la publica la Action
